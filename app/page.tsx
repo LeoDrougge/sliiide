@@ -709,7 +709,33 @@ export default function Home() {
       )}
       
       <div className="flex gap-4 w-full max-w-[1800px] h-[calc(100vh-120px)]">
-        {/* Left: Input fields and layout selector */}
+        {/* Left: Slide preview list */}
+        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '220px' }}>
+          <div className="text-sm font-normal mb-2">Slides</div>
+          <div className="flex-1 overflow-y-auto">
+            {slides.length > 0 ? (
+              <SlidePreviewList
+                slides={slides}
+                selectedIndex={selectedSlideIndex}
+                onSlideClick={handleSlideClick}
+                showGrid={showGrid}
+              />
+            ) : (
+              <div className="text-sm text-gray-400">No slides</div>
+            )}
+          </div>
+        </div>
+
+        {/* Middle: Main PDF preview */}
+        <div className="flex flex-col gap-2 flex-1">
+          {pdfBytes ? (
+            <PdfPreview pdfBytes={pdfBytes} showGrid={showGrid} />
+          ) : (
+            <div className="p-4">Generating PDF...</div>
+          )}
+        </div>
+
+        {/* Right: Input fields and layout selector */}
         <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '300px' }}>
           <input
             type="text"
@@ -740,32 +766,6 @@ export default function Home() {
             <option value="quadrant-1-2">Quadrant Layout (Bottom)</option>
             <option value="quadrant-1-2-top">Quadrant Layout (Top)</option>
           </select>
-        </div>
-
-        {/* Middle: Main PDF preview */}
-        <div className="flex flex-col gap-2 flex-1">
-          {pdfBytes ? (
-            <PdfPreview pdfBytes={pdfBytes} showGrid={showGrid} />
-          ) : (
-            <div className="p-4">Generating PDF...</div>
-          )}
-        </div>
-
-        {/* Right: Slide preview list */}
-        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '220px' }}>
-          <div className="text-sm font-normal mb-2">Slides</div>
-          <div className="flex-1 overflow-y-auto">
-            {slides.length > 0 ? (
-              <SlidePreviewList
-                slides={slides}
-                selectedIndex={selectedSlideIndex}
-                onSlideClick={handleSlideClick}
-                showGrid={showGrid}
-              />
-            ) : (
-              <div className="text-sm text-gray-400">No slides</div>
-            )}
-          </div>
         </div>
       </div>
     </div>
