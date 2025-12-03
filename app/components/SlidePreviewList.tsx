@@ -73,12 +73,13 @@ function SlidePreviewItem({
         const page = await pdf.getPage(1);
         const viewport = page.getViewport({ scale: 1 });
         
-        // Scale to fit 200px width
-        const scale = 200 / viewport.width;
-        const scaledViewport = page.getViewport({ scale });
+        // Scale to fit 200px width while maintaining exact 16:9 aspect ratio
+        const targetWidth = 200;
+        const targetHeight = targetWidth * (1080 / 1920); // 112.5px for 16:9
+        const scale = targetWidth / viewport.width;
 
-        canvas.width = scaledViewport.width;
-        canvas.height = scaledViewport.height;
+        canvas.width = targetWidth;
+        canvas.height = targetHeight;
 
         const context = canvas.getContext('2d');
         if (!context || cancelled) {
@@ -86,6 +87,7 @@ function SlidePreviewItem({
           return;
         }
 
+        const scaledViewport = page.getViewport({ scale });
         await page.render({
           canvasContext: context,
           viewport: scaledViewport,
@@ -107,10 +109,10 @@ function SlidePreviewItem({
   return (
     <div
       onClick={onClick}
-      className={`border-2 cursor-pointer mb-2 transition-all overflow-hidden ${
+      className={`border-2 cursor-pointer mb-2 transition-all ${
         isSelected ? 'border-gray-400' : 'border-gray-200'
       }`}
-      style={{ width: '200px', height: '112px', position: 'relative' }}
+      style={{ width: '200px', height: '112.5px', position: 'relative', overflow: 'hidden' }}
     >
       {isLoading ? (
         <div className="w-full h-full flex items-center justify-center text-xs text-gray-400">
@@ -119,7 +121,7 @@ function SlidePreviewItem({
       ) : (
         <canvas
           ref={canvasRef}
-          className="w-full h-full"
+          style={{ display: 'block', width: '200px', height: '112.5px' }}
         />
       )}
     </div>
@@ -135,7 +137,7 @@ export default function SlidePreviewList({
   showGrid = false 
 }: SlidePreviewListProps) {
   return (
-    <div className="flex flex-col overflow-y-auto h-full">
+    <div className="flex flex-col">
       {slides.map((slide, index) => (
         <MemoizedSlidePreviewItem
           key={index}
