@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import PdfPreview from './components/PdfPreview';
 import SlidePreviewList from './components/SlidePreviewList';
 import DeckGrid from './components/DeckGrid';
-import { generatePdf, generateMultiPagePdf } from './lib/generatePdf';
+// Removed generatePdf imports - now using HTML/CSS preview and Puppeteer export
 import type { SlideState, LayoutType, SavedDeck } from './lib/types';
 import {
   saveDeckToStorage,
@@ -38,7 +38,6 @@ export default function Home() {
   const currentSlide = slides[selectedSlideIndex] || initialState;
   const [state, setState] = useState<SlideState>(currentSlide);
   
-  const [pdfBytes, setPdfBytes] = useState<Uint8Array | null>(null);
   const [showGrid, setShowGrid] = useState(false);
   const [savedDecks, setSavedDecks] = useState<SavedDeck[]>([]);
   const [currentDeckId, setCurrentDeckId] = useState<string | null>(null);
@@ -54,37 +53,14 @@ export default function Home() {
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isChangingSlide = useRef(false); // Track if we're switching slides (not editing)
 
-  const updatePdf = useCallback(async (newState: SlideState) => {
-    try {
-      console.log('Generating PDF with state:', newState);
-      const bytes = await generatePdf(newState);
-      console.log('PDF generated, bytes length:', bytes.length);
-      if (bytes && bytes.length > 0) {
-        setPdfBytes(bytes);
-      } else {
-        console.error('PDF bytes is empty!');
-      }
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      setPdfBytes(null);
-    }
-  }, []);
-
   // Load saved decks from storage on mount
   useEffect(() => {
     const decks = getAllDecksFromStorage();
     setSavedDecks(decks);
     // Always start with home screen
     setShowHomeScreen(true);
-  }, []);
-
-  // Initial PDF generation
-  useEffect(() => {
-    console.log('Initial mount, generating PDF...');
-    updatePdf(state);
     isInitialMount.current = false;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount
+  }, []);
 
   // Update state when selected slide changes
   useEffect(() => {
@@ -141,18 +117,7 @@ export default function Home() {
     };
   }, [slides, currentDeckId]);
 
-  // Debounced update when state changes (skip initial mount)
-  useEffect(() => {
-    if (isInitialMount.current) return;
-
-    const timer = setTimeout(() => {
-      updatePdf(state);
-    }, 150);
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [state, updatePdf]);
+  // No need for PDF generation anymore - preview is HTML/CSS based
 
   const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setState({ ...state, header: e.target.value });
@@ -383,10 +348,52 @@ export default function Home() {
 
   const handleExport = async () => {
     try {
-      // Generate multi-page PDF with all slides
-      const allPdfBytes = await generateMultiPagePdf(slides);
+      // Call Puppeteer API to generate PDF
+      const response = await fetch('/api/export-pdf', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slides,
+          showGrid,
+        }),
+      });
+
+      // Check content-type first to handle errors properly
+      const contentType = response.headers.get('content-type') || '';
       
-      const blob = new Blob([new Uint8Array(allPdfBytes)], { type: 'application/pdf' });
+      if (!response.ok) {
+        let errorMessage = `Failed to generate PDF (${response.status})`;
+        
+        if (contentType.includes('application/json')) {
+          try {
+            const errorData = await response.json();
+            errorMessage = errorData.error || errorData.details || errorMessage;
+          } catch (e) {
+            console.error('Failed to parse error JSON:', e);
+          }
+        } else if (contentType.includes('text/html')) {
+          // Response is HTML (error page from Next.js)
+          const text = await response.text();
+          console.error('API returned HTML error page (likely route crashed):', text.substring(0, 500));
+          errorMessage = 'Server error occurred. Check browser console for details.';
+        } else {
+          // Unknown content type
+          const text = await response.text();
+          console.error('API returned unexpected content type:', contentType, text.substring(0, 500));
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      // Check if response is actually a PDF
+      if (!contentType.includes('application/pdf')) {
+        // Not a PDF - likely an error
+        const text = await response.text();
+        console.error('API returned non-PDF response:', contentType, text.substring(0, 500));
+        throw new Error('Server did not return a PDF. Check console for details.');
+      }
+
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -398,7 +405,8 @@ export default function Home() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error exporting PDF:', error);
-      alert('Failed to export PDF. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Failed to export PDF: ${errorMsg}\n\nCheck the browser console for more details.`);
     }
   };
 
@@ -728,11 +736,7 @@ export default function Home() {
 
         {/* Middle: Main PDF preview */}
         <div className="flex flex-col gap-2 flex-1">
-          {pdfBytes ? (
-            <PdfPreview pdfBytes={pdfBytes} showGrid={showGrid} />
-          ) : (
-            <div className="p-4">Generating PDF...</div>
-          )}
+          <PdfPreview slide={state} showGrid={showGrid} />
         </div>
 
         {/* Right: Input fields and layout selector */}
