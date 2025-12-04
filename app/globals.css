@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global text styling for UI elements */
+body {
+  font-size: 14px;
+  letter-spacing: -0.14px; /* -1% of 14px */
+}
+
+/* Apply to UI elements only */
+button,
+input,
+select,
+textarea,
+label {
+  font-size: 14px;
+  letter-spacing: -0.14px; /* -1% of 14px */
+}
+
 /* Font face declarations for TT Norms and Martian Mono */
 @font-face {
   font-family: 'TT Norms';
@@ -101,7 +117,8 @@
 /* Header - Martian Mono 16px */
 .slide-header {
   font-family: 'Martian Mono', monospace;
-  font-size: 16px;
+  font-size: 16px !important;
+  letter-spacing: 0 !important;
   color: #000;
 }
 
@@ -109,18 +126,18 @@
 .slide-title {
   font-family: 'TT Norms', sans-serif;
   font-weight: 700;
-  font-size: 125px;
+  font-size: 125px !important;
   line-height: 125px;
-  letter-spacing: -5px;
+  letter-spacing: -5px !important;
   color: #000;
 }
 
 /* Body text - TT Norms 22px, line-height 27px, letter-spacing -3% */
 .slide-body {
   font-family: 'TT Norms', sans-serif;
-  font-size: 22px;
+  font-size: 22px !important;
   line-height: 27px;
-  letter-spacing: -0.66px; /* -3% of 22px */
+  letter-spacing: -0.66px !important; /* -3% of 22px */
   color: #000;
 }
 

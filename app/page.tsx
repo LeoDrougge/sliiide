@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import PdfPreview from './components/PdfPreview';
+import HtmlSlidePreview from './components/HtmlSlidePreview';
 import SlidePreviewList from './components/SlidePreviewList';
 import DeckGrid from './components/DeckGrid';
 // Removed generatePdf imports - now using HTML/CSS preview and Puppeteer export
@@ -943,7 +943,7 @@ export default function Home() {
 
         {/* Middle: Main PDF preview with direct editing */}
         <div className="flex flex-col gap-2 flex-1">
-          <PdfPreview 
+          <HtmlSlidePreview 
             slide={state} 
             showGrid={showGrid}
             editable={true}
