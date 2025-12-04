@@ -8,7 +8,7 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
-    const { notes } = await request.json();
+    const { notes, slideAmountMode, slideAmountMin, slideAmountMax } = await request.json();
 
     if (!notes || typeof notes !== 'string' || !notes.trim()) {
       return NextResponse.json(
@@ -24,14 +24,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Build prompt with slide count instruction
+    let slideCountInstruction = '';
+    let summaryInstruction = '';
+    if (slideAmountMode === 'edit' && typeof slideAmountMin === 'number' && typeof slideAmountMax === 'number' 
+        && slideAmountMin >= 3 && slideAmountMax <= 32 && slideAmountMin <= slideAmountMax) {
+      if (slideAmountMin === slideAmountMax) {
+        slideCountInstruction = `\nVIKTIGT: Generera EXAKT ${slideAmountMin} slides. Inte fler, inte färre.`;
+        summaryInstruction = `\nVIKTIGT: Om innehållet är omfattande (t.ex. många bullet points eller lång text), sammanfatta HÅRT för att passa in i exakt ${slideAmountMin} slides. Kombinera relaterade punkter, sammanfatta detaljer till huvudbudskap, och prioritera det viktigaste innehållet. Det är viktigare att få exakt ${slideAmountMin} slides än att behålla all detaljnivå.`;
+      } else {
+        slideCountInstruction = `\nVIKTIGT: Generera mellan ${slideAmountMin} och ${slideAmountMax} slides. Antalet ska ligga inom detta spann.`;
+        summaryInstruction = `\nVIKTIGT: Om innehållet är omfattande (t.ex. många bullet points eller lång text), sammanfatta vid behov för att passa in i mellan ${slideAmountMin} och ${slideAmountMax} slides. Kombinera relaterade punkter, sammanfatta detaljer till huvudbudskap, och prioritera det viktigaste innehållet. Det är viktigare att få antalet slides inom spannet (${slideAmountMin}-${slideAmountMax}) än att behålla all detaljnivå.`;
+      }
+    } else {
+      slideCountInstruction = '\nVIKTIGT: Dela upp logiskt i separata slides baserat på ämnen/avsnitt. Gör minimala anpassningar och använd innehållet som det är.';
+      summaryInstruction = '\nVIKTIGT: Sammanfatta MINIMALT - använd primärt innehållet som det är.';
+    }
+
     const prompt = `Du ska dela upp dessa anteckningar i slides för en presentation. Varje slide ska ha:
 - header: En kort header (max 30 tecken)
 - title: En rubrik för sliden (max 60 tecken)
 - bodyText: Huvudinnehållet (2-4 rader, separera med \\n för radbrytningar)
+${slideCountInstruction}
+${summaryInstruction}
 
 VIKTIGT: 
-- Sammanfatta MINIMALT - använd primärt innehållet som det är
-- Dela upp logiskt i separata slides baserat på ämnen/avsnitt
 - Varje slide ska ha tydligt innehåll
 - Använd faktiskt innehåll från anteckningarna, hitta inte på saker
 

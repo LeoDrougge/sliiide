@@ -46,6 +46,9 @@ export default function Home() {
   const [showNotesDialog, setShowNotesDialog] = useState(false);
   const [notes, setNotes] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [slideAmountMode, setSlideAmountMode] = useState<'auto' | 'edit'>('auto');
+  const [slideAmountMin, setSlideAmountMin] = useState<number>(5);
+  const [slideAmountMax, setSlideAmountMax] = useState<number>(15);
   const [deckName, setDeckName] = useState('');
   const [isUnsaved, setIsUnsaved] = useState(false);
   const [showHomeScreen, setShowHomeScreen] = useState(true); // Start with home screen
@@ -155,6 +158,9 @@ export default function Home() {
     setShowCreateDialog(false);
     setShowNotesDialog(true);
     setNotes('');
+    setSlideAmountMode('auto');
+    setSlideAmountMin(5);
+    setSlideAmountMax(15);
   };
 
   const handleGenerateSlides = async () => {
@@ -165,7 +171,12 @@ export default function Home() {
       const response = await fetch('/api/generate-slides', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ notes }),
+        body: JSON.stringify({ 
+          notes,
+          slideAmountMode,
+          slideAmountMin: slideAmountMode === 'edit' ? slideAmountMin : undefined,
+          slideAmountMax: slideAmountMode === 'edit' ? slideAmountMax : undefined,
+        }),
       });
 
       const data = await response.json();
@@ -474,9 +485,92 @@ export default function Home() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Paste your notes here..."
-                className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none mb-2"
+                className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none mb-4"
                 style={{ minHeight: '300px' }}
               />
+              
+              {/* Amount of slides section */}
+              <div className="mb-4">
+                <div className="text-sm mb-2">Amount of slides</div>
+                <div className="flex gap-2 mb-2">
+                  <button
+                    onClick={() => setSlideAmountMode('auto')}
+                    className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer ${
+                      slideAmountMode === 'auto' ? 'bg-gray-100' : ''
+                    }`}
+                    type="button"
+                  >
+                    Auto (Claude gör minimala anpassningar)
+                  </button>
+                  <button
+                    onClick={() => setSlideAmountMode('edit')}
+                    className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer ${
+                      slideAmountMode === 'edit' ? 'bg-gray-100' : ''
+                    }`}
+                    type="button"
+                  >
+                    Edit
+                  </button>
+                </div>
+                
+                {/* Sliders - only show when Edit is selected */}
+                {slideAmountMode === 'edit' && (
+                  <div className="mt-3 space-y-3">
+                    {/* Min slider */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm">Min:</span>
+                        <span className="text-sm font-mono">{slideAmountMin}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs">3</span>
+                        <input
+                          type="range"
+                          min="3"
+                          max="32"
+                          value={slideAmountMin}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            setSlideAmountMin(val);
+                            if (val > slideAmountMax) {
+                              setSlideAmountMax(val);
+                            }
+                          }}
+                          className="flex-1"
+                        />
+                        <span className="text-xs">32</span>
+                      </div>
+                    </div>
+                    
+                    {/* Max slider */}
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm">Max:</span>
+                        <span className="text-sm font-mono">{slideAmountMax}</span>
+                      </div>
+                      <div className="flex items-center gap-4">
+                        <span className="text-xs">3</span>
+                        <input
+                          type="range"
+                          min="3"
+                          max="32"
+                          value={slideAmountMax}
+                          onChange={(e) => {
+                            const val = parseInt(e.target.value, 10);
+                            setSlideAmountMax(val);
+                            if (val < slideAmountMin) {
+                              setSlideAmountMin(val);
+                            }
+                          }}
+                          className="flex-1"
+                        />
+                        <span className="text-xs">32</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-2 justify-end">
                 <button
                   onClick={() => {
@@ -650,9 +744,92 @@ export default function Home() {
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Paste your notes here..."
-              className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none mb-2"
+              className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none mb-4"
               style={{ minHeight: '300px' }}
             />
+            
+            {/* Amount of slides section */}
+            <div className="mb-4">
+              <div className="text-sm mb-2">Amount of slides</div>
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => setSlideAmountMode('auto')}
+                  className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer ${
+                    slideAmountMode === 'auto' ? 'bg-gray-100' : ''
+                  }`}
+                  type="button"
+                >
+                  Auto (Claude gör minimala anpassningar)
+                </button>
+                <button
+                  onClick={() => setSlideAmountMode('edit')}
+                  className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer ${
+                    slideAmountMode === 'edit' ? 'bg-gray-100' : ''
+                  }`}
+                  type="button"
+                >
+                  Edit
+                </button>
+              </div>
+              
+              {/* Sliders - only show when Edit is selected */}
+              {slideAmountMode === 'edit' && (
+                <div className="mt-3 space-y-3">
+                  {/* Min slider */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm">Min:</span>
+                      <span className="text-sm font-mono">{slideAmountMin}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs">3</span>
+                      <input
+                        type="range"
+                        min="3"
+                        max="32"
+                        value={slideAmountMin}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setSlideAmountMin(val);
+                          if (val > slideAmountMax) {
+                            setSlideAmountMax(val);
+                          }
+                        }}
+                        className="flex-1"
+                      />
+                      <span className="text-xs">32</span>
+                    </div>
+                  </div>
+                  
+                  {/* Max slider */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm">Max:</span>
+                      <span className="text-sm font-mono">{slideAmountMax}</span>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-xs">3</span>
+                      <input
+                        type="range"
+                        min="3"
+                        max="32"
+                        value={slideAmountMax}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10);
+                          setSlideAmountMax(val);
+                          if (val < slideAmountMin) {
+                            setSlideAmountMin(val);
+                          }
+                        }}
+                        className="flex-1"
+                      />
+                      <span className="text-xs">32</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => {
@@ -661,6 +838,7 @@ export default function Home() {
                 }}
                 className="p-2 border border-gray-200 outline-none bg-transparent cursor-pointer"
                 type="button"
+                disabled={isGenerating}
               >
                 Cancel
               </button>
