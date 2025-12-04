@@ -592,6 +592,16 @@ export default function Home() {
           )}
         </div>
         <div className="flex gap-2 items-center">
+          <select
+            value={state.layout}
+            onChange={handleLayoutChange}
+            className="p-2 border border-gray-200 outline-none bg-transparent cursor-pointer"
+          >
+            <option value="default">Default Layout</option>
+            <option value="quadrant-1-2">Quadrant Layout (Bottom)</option>
+            <option value="quadrant-1-2-top">Quadrant Layout (Top)</option>
+            <option value="centered">Centered Layout</option>
+          </select>
           <button
             onClick={() => setShowGrid(!showGrid)}
             className="p-2 border-0 outline-none bg-transparent cursor-pointer"
@@ -716,7 +726,7 @@ export default function Home() {
         </div>
       )}
       
-      <div className="flex gap-4 w-full max-w-[1800px] h-[calc(100vh-120px)]">
+      <div className="flex gap-4 w-full h-[calc(100vh-120px)] overflow-x-auto">
         {/* Left: Slide preview list */}
         <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '220px' }}>
           <div className="text-sm font-normal mb-2">Slides</div>
@@ -734,43 +744,16 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Middle: Main PDF preview */}
+        {/* Middle: Main PDF preview with direct editing */}
         <div className="flex flex-col gap-2 flex-1">
-          <PdfPreview slide={state} showGrid={showGrid} />
-        </div>
-
-        {/* Right: Input fields and layout selector */}
-        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '300px' }}>
-          <input
-            type="text"
-            value={state.header}
-            onChange={handleHeaderChange}
-            className="w-full p-2 border border-gray-200 outline-none bg-transparent"
-            placeholder="Header"
+          <PdfPreview 
+            slide={state} 
+            showGrid={showGrid}
+            editable={true}
+            onHeaderChange={(text) => setState({ ...state, header: text })}
+            onTitleChange={(text) => setState({ ...state, title: text })}
+            onBodyTextChange={(text) => setState({ ...state, bodyText: text })}
           />
-          <input
-            type="text"
-            value={state.title}
-            onChange={handleTitleChange}
-            className="w-full p-2 border border-gray-200 outline-none bg-transparent"
-            placeholder="Title"
-          />
-          <textarea
-            value={state.bodyText}
-            onChange={handleBodyTextChange}
-            className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none flex-1"
-            placeholder="Body text"
-          />
-          <select
-            value={state.layout}
-            onChange={handleLayoutChange}
-            className="p-2 border border-gray-200 outline-none bg-transparent cursor-pointer"
-          >
-            <option value="default">Default Layout</option>
-            <option value="quadrant-1-2">Quadrant Layout (Bottom)</option>
-            <option value="quadrant-1-2-top">Quadrant Layout (Top)</option>
-            <option value="centered">Centered Layout</option>
-          </select>
         </div>
       </div>
     </div>

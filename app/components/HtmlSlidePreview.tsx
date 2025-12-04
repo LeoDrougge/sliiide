@@ -8,12 +8,20 @@ interface HtmlSlidePreviewProps {
   slide: SlideState;
   showGrid?: boolean;
   scale?: number; // Optional fixed scale for thumbnails
+  editable?: boolean; // Enable direct editing
+  onHeaderChange?: (text: string) => void;
+  onTitleChange?: (text: string) => void;
+  onBodyTextChange?: (text: string) => void;
 }
 
 export default function HtmlSlidePreview({ 
   slide, 
   showGrid = false,
-  scale 
+  scale,
+  editable = false,
+  onHeaderChange,
+  onTitleChange,
+  onBodyTextChange
 }: HtmlSlidePreviewProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -61,33 +69,91 @@ export default function HtmlSlidePreview({
       <div ref={frameRef} className="slide-frame">
         <div className={`grid-overlay ${!showGrid ? 'hidden' : ''}`} />
         <div className="slide-content">
-          <div className="slide-header" style={layoutStyles.header}>
-            {slide.header}
-          </div>
-          <div className="slide-title" style={layoutStyles.title}>
-            {layoutStyles.titleLines ? (
-              layoutStyles.titleLines.map((line, i) => (
-                <div key={i} style={{ lineHeight: '125px' }}>{line}</div>
-              ))
-            ) : (
-              slide.title
-            )}
-          </div>
-          <div className="slide-body" style={layoutStyles.body}>
-            {layoutStyles.bodyLines ? (
-              layoutStyles.bodyLines.map((paragraph, pIdx) => (
-                <div key={pIdx}>
-                  {paragraph.map((line, lIdx) => (
-                    <div key={lIdx} style={{ lineHeight: '27px' }}>{line}</div>
-                  ))}
-                </div>
-              ))
-            ) : (
-              slide.bodyText.split('\n').map((line, i) => (
-                <div key={i}>{line}</div>
-              ))
-            )}
-          </div>
+          {editable ? (
+            <>
+              {/* Editable mode - show raw text, browser handles wrapping */}
+              <div 
+                className="slide-header" 
+                style={layoutStyles.header}
+                contentEditable
+                suppressContentEditableWarning
+                data-placeholder="Header"
+                onBlur={(e) => {
+                  const text = e.currentTarget.textContent || '';
+                  onHeaderChange?.(text);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.currentTarget.blur();
+                  }
+                }}
+              >
+                {slide.header}
+              </div>
+              <div 
+                className="slide-title" 
+                style={layoutStyles.title}
+                contentEditable
+                suppressContentEditableWarning
+                data-placeholder="Title"
+                onBlur={(e) => {
+                  const text = e.currentTarget.textContent || '';
+                  onTitleChange?.(text);
+                }}
+                onKeyDown={(e) => {
+                  // Allow Enter for multi-line titles
+                  // Browser will handle wrapping with CSS
+                }}
+              >
+                {slide.title}
+              </div>
+              <div 
+                className="slide-body" 
+                style={layoutStyles.body}
+                contentEditable
+                suppressContentEditableWarning
+                data-placeholder="Body text"
+                onBlur={(e) => {
+                  const text = e.currentTarget.textContent || '';
+                  onBodyTextChange?.(text);
+                }}
+              >
+                {slide.bodyText}
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Read-only mode - use wrapped lines for display */}
+              <div className="slide-header" style={layoutStyles.header}>
+                {slide.header}
+              </div>
+              <div className="slide-title" style={layoutStyles.title}>
+                {layoutStyles.titleLines ? (
+                  layoutStyles.titleLines.map((line, i) => (
+                    <div key={i} style={{ lineHeight: '125px' }}>{line}</div>
+                  ))
+                ) : (
+                  slide.title
+                )}
+              </div>
+              <div className="slide-body" style={layoutStyles.body}>
+                {layoutStyles.bodyLines ? (
+                  layoutStyles.bodyLines.map((paragraph, pIdx) => (
+                    <div key={pIdx}>
+                      {paragraph.map((line, lIdx) => (
+                        <div key={lIdx} style={{ lineHeight: '27px' }}>{line}</div>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  slide.bodyText.split('\n').map((line, i) => (
+                    <div key={i}>{line}</div>
+                  ))
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -28,6 +28,7 @@
 .slide-wrapper {
   position: relative;
   width: 100%;
+  min-width: 1240px;
   max-width: 1600px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
@@ -121,4 +122,29 @@
   line-height: 27px;
   letter-spacing: -0.66px; /* -3% of 22px */
   color: #000;
+}
+
+/* Editable styles */
+.slide-header[contenteditable],
+.slide-title[contenteditable],
+.slide-body[contenteditable] {
+  cursor: text;
+  outline: none;
+  white-space: pre-wrap; /* Preserve line breaks and wrap text */
+  word-wrap: break-word;
+}
+
+.slide-header[contenteditable]:focus,
+.slide-title[contenteditable]:focus,
+.slide-body[contenteditable]:focus {
+  outline: 2px solid rgba(0, 0, 255, 0.3);
+  outline-offset: 2px;
+}
+
+.slide-header[contenteditable]:empty::before,
+.slide-title[contenteditable]:empty::before,
+.slide-body[contenteditable]:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
