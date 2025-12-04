@@ -592,16 +592,6 @@ export default function Home() {
           )}
         </div>
         <div className="flex gap-2 items-center">
-          <select
-            value={state.layout}
-            onChange={handleLayoutChange}
-            className="p-2 border border-gray-200 outline-none bg-transparent cursor-pointer"
-          >
-            <option value="default">Default Layout</option>
-            <option value="quadrant-1-2">Quadrant Layout (Bottom)</option>
-            <option value="quadrant-1-2-top">Quadrant Layout (Top)</option>
-            <option value="centered">Centered Layout</option>
-          </select>
           <button
             onClick={() => setShowGrid(!showGrid)}
             className="p-2 border-0 outline-none bg-transparent cursor-pointer"
@@ -754,6 +744,49 @@ export default function Home() {
             onTitleChange={(text) => setState({ ...state, title: text })}
             onBodyTextChange={(text) => setState({ ...state, bodyText: text })}
           />
+        </div>
+
+        {/* Right: Layout selector list */}
+        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '200px' }}>
+          <div className="text-sm font-normal mb-2">Layout</div>
+          <div className="flex flex-col gap-1">
+            <button
+              onClick={() => setState({ ...state, layout: 'default' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'default' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Default Layout
+            </button>
+            <button
+              onClick={() => setState({ ...state, layout: 'quadrant-1-2' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'quadrant-1-2' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Quadrant (Bottom)
+            </button>
+            <button
+              onClick={() => setState({ ...state, layout: 'quadrant-1-2-top' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'quadrant-1-2-top' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Quadrant (Top)
+            </button>
+            <button
+              onClick={() => setState({ ...state, layout: 'centered' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'centered' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Centered Layout
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -28,7 +28,7 @@
 .slide-wrapper {
   position: relative;
   width: 100%;
-  min-width: 1240px;
+  min-width: 960px;
   max-width: 1600px;
   aspect-ratio: 16 / 9;
   overflow: hidden;
