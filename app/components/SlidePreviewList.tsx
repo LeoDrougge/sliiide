@@ -8,6 +8,7 @@ interface SlidePreviewListProps {
   slides: SlideState[];
   selectedIndex: number;
   onSlideClick: (index: number) => void;
+  onAddSlide?: () => void;
   showGrid?: boolean;
 }
 
@@ -50,20 +51,32 @@ export default function SlidePreviewList({
   slides, 
   selectedIndex, 
   onSlideClick,
+  onAddSlide,
   showGrid = false 
 }: SlidePreviewListProps) {
   return (
-    <div className="flex flex-col">
-      {slides.map((slide, index) => (
-        <MemoizedSlidePreviewItem
-          key={index}
-          slide={slide}
-          index={index}
-          isSelected={index === selectedIndex}
-          onClick={() => onSlideClick(index)}
-          showGrid={showGrid}
-        />
-      ))}
+    <div className="flex flex-col relative" style={{ height: '100%' }}>
+      <div className="flex-1 overflow-y-auto">
+        {slides.map((slide, index) => (
+          <MemoizedSlidePreviewItem
+            key={index}
+            slide={slide}
+            index={index}
+            isSelected={index === selectedIndex}
+            onClick={() => onSlideClick(index)}
+            showGrid={showGrid}
+          />
+        ))}
+      </div>
+      {onAddSlide && (
+        <button
+          onClick={onAddSlide}
+          className="sticky bottom-0 w-full p-2 border border-gray-200 outline-none bg-white cursor-pointer text-sm mt-2"
+          type="button"
+        >
+          Add slide
+        </button>
+      )}
     </div>
   );
 }

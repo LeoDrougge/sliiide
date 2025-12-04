@@ -276,6 +276,34 @@ export default function Home() {
     }
   };
 
+  const handleAddSlide = () => {
+    // Save current slide changes before adding new one
+    setSlides(prev => {
+      const updated = [...prev];
+      updated[selectedSlideIndex] = state;
+      // Add new slide at the end
+      const newSlide: SlideState = {
+        header: '',
+        title: '',
+        bodyText: '',
+        layout: 'default',
+      };
+      updated.push(newSlide);
+      return updated;
+    });
+    
+    // Select the newly added slide
+    isChangingSlide.current = true;
+    const newIndex = slides.length;
+    setSelectedSlideIndex(newIndex);
+    setState({
+      header: '',
+      title: '',
+      bodyText: '',
+      layout: 'default',
+    });
+  };
+
   const handleDeleteDeck = (deckId: string) => {
     deleteDeckFromStorage(deckId);
     setSavedDecks(getAllDecksFromStorage());
@@ -896,14 +924,15 @@ export default function Home() {
       
       <div className="flex gap-4 w-full h-[calc(100vh-120px)] overflow-x-auto">
         {/* Left: Slide preview list */}
-        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '220px' }}>
+        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '220px', height: '100%' }}>
           <div className="text-sm font-normal mb-2">Slides</div>
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-hidden" style={{ minHeight: 0 }}>
             {slides.length > 0 ? (
               <SlidePreviewList
                 slides={slides}
                 selectedIndex={selectedSlideIndex}
                 onSlideClick={handleSlideClick}
+                onAddSlide={handleAddSlide}
                 showGrid={showGrid}
               />
             ) : (
