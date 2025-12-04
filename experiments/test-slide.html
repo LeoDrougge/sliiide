@@ -41,14 +41,28 @@
             background: #333;
         }
 
-        /* 16:9 Frame */
+        /* Wrapper with 16:9 aspect ratio - responsive container */
+        .slide-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 1600px;
+            aspect-ratio: 16 / 9;
+            overflow: hidden;
+        }
+
+        /* Fixed-size frame - never reflows, always 1920×1080px */
         .slide-frame {
+            position: absolute;
             width: 1920px;
             height: 1080px;
+            top: 0;
+            left: 0;
             background: white;
-            position: relative;
             border: 2px solid #ccc;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transform-origin: top left;
+            /* Scale set via CSS variable --scale-factor */
+            transform: scale(var(--scale-factor, 0.5));
         }
 
         /* 40x40px Grid */
@@ -143,13 +157,7 @@
             word-wrap: break-word;
         }
 
-        /* Scale for preview */
-        @media screen {
-            .slide-frame {
-                transform: scale(0.5);
-                transform-origin: top center;
-            }
-        }
+        /* Scale handled via JavaScript for responsive preview */
 
         /* Print/PDF styles */
         @media print {
@@ -162,10 +170,22 @@
                 display: none;
             }
 
+            .slide-wrapper {
+                max-width: none;
+                width: 1920px;
+                height: 1080px;
+                aspect-ratio: unset;
+            }
+
+            .slide-wrapper .slide-frame {
+                transform: none !important;
+            }
+
             .slide-frame {
                 border: none;
                 box-shadow: none;
-                transform: none;
+                width: 1920px !important;
+                height: 1080px !important;
             }
 
             .grid-overlay {
@@ -185,21 +205,53 @@
         <button onclick="exportPdf()">Export PDF</button>
     </div>
 
-    <div class="slide-frame">
-        <div class="grid-overlay" id="gridOverlay"></div>
-        <div class="slide-content">
-            <div class="header">Q4 Update — Draft</div>
-            <div class="title">Roadmap Overview</div>
-            <div class="body">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>
-                Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco.<br>
-                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+    <div class="slide-wrapper" id="slideWrapper">
+        <div class="slide-frame" id="slideFrame">
+            <div class="grid-overlay" id="gridOverlay"></div>
+            <div class="slide-content">
+                <div class="header">Q4 Update — Draft</div>
+                <div class="title">Roadmap Overview</div>
+                <div class="body">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>
+                    Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>
+                    Ut enim ad minim veniam, quis nostrud exercitation ullamco.<br>
+                    Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // Set scale factor CSS variable based on wrapper width
+        function updateScale() {
+            const wrapper = document.getElementById('slideWrapper');
+            if (!wrapper) return;
+            
+            const wrapperWidth = wrapper.clientWidth;
+            const scale = wrapperWidth / 1920;
+            wrapper.style.setProperty('--scale-factor', scale);
+        }
+
+        // Update on load and resize
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                updateScale();
+                window.addEventListener('resize', updateScale);
+                // Use ResizeObserver for more accurate updates
+                if (window.ResizeObserver) {
+                    const observer = new ResizeObserver(updateScale);
+                    observer.observe(document.getElementById('slideWrapper'));
+                }
+            });
+        } else {
+            updateScale();
+            window.addEventListener('resize', updateScale);
+            if (window.ResizeObserver) {
+                const observer = new ResizeObserver(updateScale);
+                observer.observe(document.getElementById('slideWrapper'));
+            }
+        }
+
         function toggleGrid() {
             const grid = document.getElementById('gridOverlay');
             grid.classList.toggle('hidden');
