@@ -765,6 +765,7 @@ export default function Home() {
             <option value="default">Default Layout</option>
             <option value="quadrant-1-2">Quadrant Layout (Bottom)</option>
             <option value="quadrant-1-2-top">Quadrant Layout (Top)</option>
+            <option value="centered">Centered Layout</option>
           </select>
         </div>
       </div>

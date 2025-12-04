@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Test - 16:9 Slide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Martian+Mono:wght@400;500&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #000;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #333;
+        }
+
+        /* 16:9 Frame */
+        .slide-frame {
+            width: 1920px;
+            height: 1080px;
+            background: white;
+            position: relative;
+            border: 2px solid #ccc;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 40x40px Grid */
+        .grid-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(0, 0, 0, 0.1) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Grid toggle */
+        .grid-overlay.hidden {
+            display: none;
+        }
+
+        /* Quadrant dividers */
+        .grid-overlay::before,
+        .grid-overlay::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 0, 255, 0.3);
+        }
+
+        .grid-overlay::before {
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+            transform: translateX(-50%);
+        }
+
+        .grid-overlay::after {
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 1px;
+            transform: translateY(-50%);
+        }
+
+        /* Content layer */
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            padding: 80px;
+        }
+
+        /* Header - Martian Mono 16px */
+        .header {
+            font-family: 'Martian Mono', monospace;
+            font-size: 16px;
+            position: absolute;
+            top: 80px; /* 2 grid rows from top */
+            left: 80px;
+            color: #000;
+        }
+
+        /* Title - TT Norms Bold 125px, line-height 125px, letter-spacing -5px */
+        .title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 125px;
+            line-height: 125px;
+            letter-spacing: -5px;
+            color: #000;
+            position: absolute;
+            top: 320px; /* ~8 grid units from top */
+            left: 72px; /* 80px - 8px nudge */
+            max-width: 960px; /* 50% of page */
+            word-wrap: break-word;
+        }
+
+        /* Body text - TT Norms 22px, line-height 27px, letter-spacing -3% */
+        .body {
+            font-family: 'Inter', sans-serif;
+            font-size: 22px;
+            line-height: 27px;
+            letter-spacing: -0.66px; /* -3% of 22px */
+            color: #000;
+            position: absolute;
+            bottom: 80px;
+            left: 80px;
+            max-width: 960px;
+            word-wrap: break-word;
+        }
+
+        /* Scale for preview */
+        @media screen {
+            .slide-frame {
+                transform: scale(0.5);
+                transform-origin: top center;
+            }
+        }
+
+        /* Print/PDF styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .controls {
+                display: none;
+            }
+
+            .slide-frame {
+                border: none;
+                box-shadow: none;
+                transform: none;
+            }
+
+            .grid-overlay {
+                display: block; /* Show grid in PDF for validation */
+            }
+
+            @page {
+                size: 1920px 1080px;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <button onclick="toggleGrid()">Toggle Grid</button>
+        <button onclick="exportPdf()">Export PDF</button>
+    </div>
+
+    <div class="slide-frame">
+        <div class="grid-overlay" id="gridOverlay"></div>
+        <div class="slide-content">
+            <div class="header">Q4 Update — Draft</div>
+            <div class="title">Roadmap Overview</div>
+            <div class="body">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit.<br>
+                Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.<br>
+                Ut enim ad minim veniam, quis nostrud exercitation ullamco.<br>
+                Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleGrid() {
+            const grid = document.getElementById('gridOverlay');
+            grid.classList.toggle('hidden');
+        }
+
+        async function exportPdf() {
+            try {
+                // Check if server is reachable first
+                console.log('Attempting to export PDF...');
+                
+                const response = await fetch('http://localhost:3001/export-pdf', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        html: document.documentElement.outerHTML
+                    })
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'slide.pdf';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    console.log('PDF downloaded successfully');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Server error:', errorText);
+                    alert('Failed to export PDF. Status: ' + response.status + '. Make sure the server is running on port 3001.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error exporting PDF: ' + error.message + '\n\nMake sure the server is running:\nnpm run test:pdf');
+            }
+        }
+    </script>
+</body>
+</html>
+

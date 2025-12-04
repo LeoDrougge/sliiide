@@ -448,6 +448,179 @@ async function generateQuadrantTopLayout(
   }
 }
 
+async function generateCenteredLayout(
+  page: PDFPage,
+  state: SlideState,
+  martianMono: any,
+  ttNorms: any,
+  ttNormsBold: any
+): Promise<void> {
+  // Header - top area, aligned to grid (same as default)
+  const headerY = snapToGrid(1080 - 80);
+  page.drawText(state.header, {
+    x: snapToGrid(80),
+    y: headerY,
+    size: 16,
+    font: martianMono,
+    color: rgb(0, 0, 0),
+  });
+
+  // Title - centered vertically and horizontally
+  // 125px font size, 125px line-height, -5px letter-spacing
+  // Max width: 50% of page = 960px
+  const titleFontSize = 125;
+  const titleLineHeight = 125;
+  const titleLetterSpacing = -5;
+  const titleMaxWidth = 960;
+
+  // Split title into words and wrap lines
+  const titleWords = state.title.split(' ');
+  const titleLines: string[] = [];
+  let currentLine = '';
+
+  for (const word of titleWords) {
+    const testLine = currentLine ? `${currentLine} ${word}` : word;
+    const testWidth = ttNormsBold.widthOfTextAtSize(testLine, titleFontSize);
+    const adjustedWidth = testWidth + (testLine.length - 1) * titleLetterSpacing;
+
+    if (adjustedWidth <= titleMaxWidth) {
+      currentLine = testLine;
+    } else {
+      if (currentLine) {
+        titleLines.push(currentLine);
+      }
+      currentLine = word;
+    }
+  }
+  if (currentLine) {
+    titleLines.push(currentLine);
+  }
+
+  // Body text - 40px below title, centered horizontally, flows downward
+  // 22px font size, 27px line-height, -3% letter-spacing
+  const bodyFontSize = 22;
+  const bodyLineHeight = 27;
+  const bodyLetterSpacing = -(bodyFontSize * 0.03);
+  const bodyMaxWidth = 960;
+
+  // Split text into paragraphs
+  const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
+  const allWrappedLines: string[] = [];
+
+  for (const paragraph of bodyParagraphs) {
+    const words = paragraph.trim().split(' ');
+    let currentLine = '';
+
+    for (const word of words) {
+      const testLine = currentLine ? `${currentLine} ${word}` : word;
+      const textWidth = ttNorms.widthOfTextAtSize(testLine, bodyFontSize);
+      const adjustedWidth = textWidth + ((testLine.length - 1) * bodyLetterSpacing);
+
+      if (adjustedWidth <= bodyMaxWidth) {
+        currentLine = testLine;
+      } else {
+        if (currentLine) {
+          allWrappedLines.push(currentLine);
+        }
+        currentLine = word;
+      }
+    }
+    if (currentLine) {
+      allWrappedLines.push(currentLine);
+    }
+  }
+
+  // Calculate total heights
+  const titleHeight = titleLines.length * titleLineHeight;
+  const bodyHeight = allWrappedLines.length * bodyLineHeight;
+  const gapHeight = 80; // 80px gap (doubled from 40px)
+  const totalContentHeight = titleHeight + gapHeight + bodyHeight;
+
+  // Center vertically on page
+  // pageCenterY is at 540 (middle of 1080)
+  // We want to center the entire content block (title + gap + body) vertically
+  const pageCenterY = 540;
+  
+  // Calculate where title bottom should be to center everything
+  // Title bottom is at: centerY + (totalHeight / 2) - titleHeight
+  const titleBottomY = pageCenterY + (totalContentHeight / 2) - titleHeight;
+  
+  // Body starts 40px below title bottom (lower Y value = further down on page)
+  const bodyStartY = titleBottomY - gapHeight;
+
+  // Draw title lines from bottom up (grows upward from titleBottomY)
+  for (let i = titleLines.length - 1; i >= 0; i--) {
+    const line = titleLines[i];
+    const lineIndex = titleLines.length - 1 - i;
+    const lineY = titleBottomY + (lineIndex * titleLineHeight);
+
+    // Calculate line width for centering
+    let lineWidth = 0;
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const charWidth = ttNormsBold.widthOfTextAtSize(char, titleFontSize);
+      lineWidth += charWidth;
+      if (j < line.length - 1) {
+        lineWidth += titleLetterSpacing;
+      }
+    }
+
+    // Center horizontally
+    const lineX = (1920 - lineWidth) / 2;
+
+    // Draw each character with letter-spacing
+    let currentX = lineX;
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const charWidth = ttNormsBold.widthOfTextAtSize(char, titleFontSize);
+      page.drawText(char, {
+        x: currentX,
+        y: lineY,
+        size: titleFontSize,
+        font: ttNormsBold,
+        color: rgb(0, 0, 0),
+      });
+      currentX += charWidth + titleLetterSpacing;
+    }
+  }
+
+  // Draw body lines flowing downward from bodyStartY
+  // bodyStartY is above titleBottomY, so to flow downward we subtract from Y
+  for (let i = 0; i < allWrappedLines.length; i++) {
+    const line = allWrappedLines[i];
+    const lineY = bodyStartY - (i * bodyLineHeight); // Subtract to go downward (Y increases upward in pdf-lib)
+
+    // Calculate line width for centering
+    let lineWidth = 0;
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const charWidth = ttNorms.widthOfTextAtSize(char, bodyFontSize);
+      lineWidth += charWidth;
+      if (j < line.length - 1) {
+        lineWidth += bodyLetterSpacing;
+      }
+    }
+
+    // Center horizontally
+    const lineX = (1920 - lineWidth) / 2;
+
+    // Draw each character with letter-spacing
+    let currentX = lineX;
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      const charWidth = ttNorms.widthOfTextAtSize(char, bodyFontSize);
+      page.drawText(char, {
+        x: currentX,
+        y: lineY,
+        size: bodyFontSize,
+        font: ttNorms,
+        color: rgb(0, 0, 0),
+      });
+      currentX += charWidth + bodyLetterSpacing;
+    }
+  }
+}
+
 export async function generatePdf(state: SlideState): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
   
@@ -494,6 +667,8 @@ export async function generatePdf(state: SlideState): Promise<Uint8Array> {
     await generateQuadrantLayout(page, state, martianMono, ttNorms, ttNormsBold);
   } else if (state.layout === 'quadrant-1-2-top') {
     await generateQuadrantTopLayout(page, state, martianMono, ttNorms, ttNormsBold);
+  } else if (state.layout === 'centered') {
+    await generateCenteredLayout(page, state, martianMono, ttNorms, ttNormsBold);
   } else {
     await generateDefaultLayout(page, state, martianMono, ttNorms, ttNormsBold);
   }
@@ -546,6 +721,8 @@ export async function generateMultiPagePdf(slides: SlideState[]): Promise<Uint8A
       await generateQuadrantLayout(page, slide, martianMono, ttNorms, ttNormsBold);
     } else if (slide.layout === 'quadrant-1-2-top') {
       await generateQuadrantTopLayout(page, slide, martianMono, ttNorms, ttNormsBold);
+    } else if (slide.layout === 'centered') {
+      await generateCenteredLayout(page, slide, martianMono, ttNorms, ttNormsBold);
     } else {
       await generateDefaultLayout(page, slide, martianMono, ttNorms, ttNormsBold);
     }

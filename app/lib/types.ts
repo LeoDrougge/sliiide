@@ -1,4 +1,4 @@
-export type LayoutType = 'default' | 'quadrant-1-2' | 'quadrant-1-2-top';
+export type LayoutType = 'default' | 'quadrant-1-2' | 'quadrant-1-2-top' | 'centered';
 
 export interface SlideState {
   header: string;
