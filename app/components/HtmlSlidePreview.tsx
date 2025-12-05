@@ -70,27 +70,29 @@ export default function HtmlSlidePreview({
 
   // Initialize/sync bullet list content when slide changes from outside (not from user editing)
   // This includes changes to bodyText OR layout (switching to/from bullet layout)
+  // OR useBullets toggle (switching bullets on/off)
   useEffect(() => {
     const layoutChanged = slide.layout !== lastLayoutRef.current;
     const bodyTextChanged = slide.bodyText !== lastSyncedBodyTextRef.current;
+    const shouldUseBullets = slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets);
     
-    if (editable && layoutStyles.bodyUseBullets && bulletListRef.current && !isEditingRef.current) {
-      // Update if bodyText changed from outside OR layout changed to bullet layout
-      if (bodyTextChanged || layoutChanged) {
-        lastSyncedBodyTextRef.current = slide.bodyText;
-        lastLayoutRef.current = slide.layout;
-        
-        // Update DOM to match React state
-        const lines = slide.bodyText.split('\n').filter(line => line.trim());
-        bulletListRef.current.innerHTML = lines
-          .map(line => `<li>${line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`)
-          .join('');
-      }
+    if (editable && shouldUseBullets && bulletListRef.current && !isEditingRef.current) {
+      // Always update when switching to bullets or when bodyText/layout changes
+      // This ensures content is properly initialized when toggling bullets on
+      lastSyncedBodyTextRef.current = slide.bodyText;
+      lastLayoutRef.current = slide.layout;
+      
+      // Update DOM to match React state
+      const lines = slide.bodyText.split('\n').filter(line => line.trim());
+      bulletListRef.current.innerHTML = lines
+        .map(line => `<li>${line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`)
+        .join('');
     } else if (layoutChanged) {
       // Layout changed but not to bullet layout - update refs
       lastLayoutRef.current = slide.layout;
+      lastSyncedBodyTextRef.current = slide.bodyText;
     }
-  }, [slide.bodyText, slide.layout, editable, layoutStyles.bodyUseBullets]);
+  }, [slide.bodyText, slide.layout, slide.useBullets, editable, layoutStyles.bodyUseBullets]);
 
   return (
     <div ref={wrapperRef} className="slide-wrapper">
@@ -142,7 +144,7 @@ export default function HtmlSlidePreview({
               >
                 {slide.title}
               </div>
-              {(slide.useBullets || layoutStyles.bodyUseBullets) ? (
+              {(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets)) ? (
                 // Editable mode with bullet points using CSS ::marker
                 editable ? (
                   <ul 
