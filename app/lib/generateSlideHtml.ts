@@ -232,21 +232,21 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
                 <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
-                <div class="slide-overline" style="${overlineStyle}">${escapeHtml(slide.overline)}</div>
+                <div class="slide-overline" style="${overlineStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">${escapeHtml(slide.overline)}</div>
                 ${layoutStyles.title.display !== 'none' ? `
-                <div class="slide-title" style="${titleStyle}">
+                <div class="slide-title" style="${titleStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
                     ${layoutStyles.titleLines 
                       ? layoutStyles.titleLines.map(line => `<div style="line-height: ${layoutStyles.titleLineHeight || 125}px;">${escapeHtml(line)}</div>`).join('')
                       : escapeHtml(slide.title)}
                 </div>
                 ` : ''}
                 ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
-                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
                       ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
                         `<li>${escapeHtml(line)}</li>`
                       ).join('')}
                     </ul>`
-                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
                       ${layoutStyles.bodyLines
                         ? layoutStyles.bodyLines.map(paragraph => 
                             `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
@@ -287,19 +287,19 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
               <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
-              <div class="slide-overline" style="${overlineStyle}">${escapeHtml(slide.overline)}</div>
-              <div class="slide-title" style="${titleStyle}">
+              <div class="slide-overline" style="${overlineStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">${escapeHtml(slide.overline)}</div>
+              <div class="slide-title" style="${titleStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
                 ${layoutStyles.titleLines 
                   ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
                   : escapeHtml(slide.title)}
               </div>
               ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
-                ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
                     ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
                       `<li>${escapeHtml(line)}</li>`
                     ).join('')}
                   </ul>`
-                : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
                     ${layoutStyles.bodyLines
                       ? layoutStyles.bodyLines.map(paragraph => 
                           `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`

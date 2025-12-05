@@ -114,7 +114,10 @@ export default function HtmlSlidePreview({
               {/* Overline - shows title from title slide (slide 0) */}
               <div 
                 className="slide-overline" 
-                style={layoutStyles.overline}
+                style={{
+                  ...layoutStyles.overline,
+                  ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                }}
               >
                 {titleSlideTitle || slide.overline}
               </div>
@@ -148,7 +151,10 @@ export default function HtmlSlidePreview({
                   <ul 
                     ref={bulletListRef}
                     className={`slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}`}
-                    style={layoutStyles.body}
+                    style={{
+                      ...layoutStyles.body,
+                      ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                    }}
                     contentEditable
                     suppressContentEditableWarning
                     onFocus={() => {
@@ -178,7 +184,10 @@ export default function HtmlSlidePreview({
                   // Read-only mode
                   <ul 
                     className={`slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}`}
-                    style={layoutStyles.body}
+                    style={{
+                      ...layoutStyles.body,
+                      ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                    }}
                   >
                     {slide.bodyText.split('\n').filter(line => line.trim()).map((line, idx) => (
                       <li key={idx}>{line}</li>
@@ -189,7 +198,10 @@ export default function HtmlSlidePreview({
                 // Editable mode without bullet points
                 <div 
                   className={layoutStyles.bodyClassName || 'slide-body'} 
-                  style={layoutStyles.body}
+                  style={{
+                    ...layoutStyles.body,
+                    ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                  }}
                   contentEditable
                   suppressContentEditableWarning
                   data-placeholder="Body text"
@@ -205,7 +217,13 @@ export default function HtmlSlidePreview({
           ) : (
             <>
               {/* Read-only mode - use wrapped lines for display */}
-              <div className="slide-overline" style={layoutStyles.overline}>
+              <div 
+                className="slide-overline" 
+                style={{
+                  ...layoutStyles.overline,
+                  ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                }}
+              >
                 {titleSlideTitle || slide.overline}
               </div>
               {layoutStyles.title.display !== 'none' && (
@@ -216,6 +234,7 @@ export default function HtmlSlidePreview({
                     ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
                     ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
                     ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+                    ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
                   }}
                 >
                   {layoutStyles.titleLines ? (

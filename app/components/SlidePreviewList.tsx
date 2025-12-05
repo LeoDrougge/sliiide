@@ -51,12 +51,12 @@ function SlidePreviewItem({
       } ${isDragging ? 'opacity-50' : ''}`}
       style={{ width: '200px', height: '112.5px', position: 'relative' }}
     >
-            <HtmlSlidePreview 
-              slide={slide} 
-              showGrid={showGrid} 
-              scale={thumbnailScale}
-              titleSlideTitle={titleSlideTitle}
-            />
+      <HtmlSlidePreview 
+        slide={slide} 
+        showGrid={showGrid} 
+        scale={thumbnailScale}
+        titleSlideTitle={titleSlideTitle}
+      />
     </div>
   );
 }
@@ -124,6 +124,7 @@ export default function SlidePreviewList({
               onDrop={handleDrop(index)}
               isDragging={draggedIndex === index}
               showGrid={showGrid}
+              titleSlideTitle={titleSlideTitle}
             />
           </div>
         ))}

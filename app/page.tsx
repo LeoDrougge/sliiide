@@ -16,6 +16,7 @@ import {
   exportDeckToJSON,
   importDeckFromJSON,
 } from './lib/deckStorage';
+import { COLOR_THEMES } from './lib/htmlSlideLayouts';
 
 const dummyText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
@@ -1055,9 +1056,11 @@ export default function Home() {
         </div>
 
         {/* Right: Layout selector list */}
-        <div className="flex flex-col gap-2 flex-shrink-0" style={{ width: '200px' }}>
-          <div className="text-sm font-normal mb-2">Layout</div>
-          <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-4 flex-shrink-0" style={{ width: '200px' }}>
+          {/* Layout selector */}
+          <div>
+            <div className="text-sm font-normal mb-2">Layout</div>
+            <div className="flex flex-col gap-1">
             <button
               onClick={() => setState({ ...state, layout: 'title' })}
               className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
@@ -1133,6 +1136,42 @@ export default function Home() {
             >
               Bullet Points
             </button>
+          </div>
+          </div>
+
+          {/* Color Theme selector */}
+          <div>
+            <div className="text-sm font-normal mb-2">Färgtema</div>
+            <div className="flex flex-col gap-1">
+              {[0, 1, 2].map((themeIndex) => {
+                const theme = COLOR_THEMES[themeIndex];
+                return (
+                  <button
+                    key={themeIndex}
+                    onClick={() => setState({ ...state, colorTheme: themeIndex })}
+                    className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left flex items-center gap-2 ${
+                      (state.colorTheme ?? 0) === themeIndex ? 'bg-gray-100' : ''
+                    }`}
+                    type="button"
+                  >
+                    {/* Color preview */}
+                    <div className="flex gap-1">
+                      <div
+                        className="w-6 h-6 border border-gray-300"
+                        style={{ backgroundColor: theme.backgroundColor }}
+                        title={`Bakgrund: ${theme.backgroundColor}`}
+                      />
+                      <div
+                        className="w-6 h-6 border border-gray-300"
+                        style={{ backgroundColor: theme.textColor }}
+                        title={`Text: ${theme.textColor}`}
+                      />
+                    </div>
+                    <span className="text-xs">Kombination {themeIndex}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

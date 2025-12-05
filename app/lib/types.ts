@@ -6,6 +6,7 @@ export interface SlideState {
   bodyText: string;
   layout: LayoutType;
   useBullets?: boolean; // Toggle for bullet points on any layout
+  colorTheme?: number; // Color theme: 0 (default), 1, or 2
 }
 
 export interface SavedDeck {

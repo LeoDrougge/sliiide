@@ -1,5 +1,37 @@
 import type { SlideState } from './types';
 
+// Color palette
+export const COLOR_PALETTE = {
+  'dark-blue': '#003953',
+  'light-cyan': '#AFDDD9',
+  'dark-green': '#003535',
+  'light-blue': '#E6F4F3',
+  'yellow-accent': '#FFDD21',
+  'light-yellow': '#FFF2BF',
+  'dark-red': '#540A2B',
+  'light-red': '#FFEFEE',
+  'accent-red': '#FF664B',
+} as const;
+
+// Color theme combinations
+export const COLOR_THEMES = [
+  {
+    // Kombination 0 (Default)
+    backgroundColor: COLOR_PALETTE['light-blue'],
+    textColor: COLOR_PALETTE['dark-blue'],
+  },
+  {
+    // Kombination 1
+    backgroundColor: COLOR_PALETTE['dark-blue'],
+    textColor: COLOR_PALETTE['light-cyan'],
+  },
+  {
+    // Kombination 2
+    backgroundColor: COLOR_PALETTE['light-cyan'],
+    textColor: COLOR_PALETTE['dark-blue'],
+  },
+] as const;
+
 // Title font size constants
 const TITLE_FONT_SIZE_LARGE = 125; // For "title" and "avdelare" layouts
 const TITLE_FONT_SIZE_SMALL = 82; // For quadrant and centered layouts
@@ -22,7 +54,8 @@ export interface LayoutStyles {
   bodyUseBullets?: boolean; // Flag to use custom bullet points
   bodyLineHeight?: number; // Line height for body (if different from default)
   bodyClassName?: string; // CSS class name for body (e.g., 'slide-body-large')
-  backgroundColor?: string; // Background color for the slide (e.g., '#f5f5f5' for light gray)
+  backgroundColor?: string; // Background color for the slide
+  textColor?: string; // Text color for title, body, and overline
   titleLineHeight?: number; // Line height for title (if different from default)
   titleFontSize?: number; // Font size for title (if different from default 125px)
   titleLetterSpacing?: number; // Letter spacing for title (if different from default -5px)
@@ -374,22 +407,43 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
 }
 
 export function getLayoutStyles(state: SlideState): LayoutStyles {
+  let layoutStyles: LayoutStyles;
+  
   switch (state.layout) {
     case 'title':
-      return getDefaultLayoutStyles(state);
+      layoutStyles = getDefaultLayoutStyles(state);
+      break;
     case 'avdelare':
-      return getAvdelareLayoutStyles(state);
+      layoutStyles = getAvdelareLayoutStyles(state);
+      break;
     case 'intro':
-      return getIntroLayoutStyles(state);
+      layoutStyles = getIntroLayoutStyles(state);
+      break;
     case 'quadrant-1-2':
-      return getQuadrantLayoutStyles(state);
+      layoutStyles = getQuadrantLayoutStyles(state);
+      break;
     case 'quadrant-1-2-top':
-      return getQuadrantTopLayoutStyles(state);
+      layoutStyles = getQuadrantTopLayoutStyles(state);
+      break;
     case 'centered':
-      return getCenteredLayoutStyles(state);
+      layoutStyles = getCenteredLayoutStyles(state);
+      break;
     case 'quadrant-1-2-large':
-      return getQuadrantLargeLayoutStyles(state);
+      layoutStyles = getQuadrantLargeLayoutStyles(state);
+      break;
     default:
-      return getDefaultLayoutStyles(state);
+      layoutStyles = getDefaultLayoutStyles(state);
   }
+  
+  // Apply color theme (default to 0 if not specified)
+  const themeIndex = state.colorTheme ?? 0;
+  const theme = COLOR_THEMES[themeIndex] || COLOR_THEMES[0];
+  
+  // Override backgroundColor unless it's explicitly set (like for avdelare)
+  if (state.layout !== 'avdelare') {
+    layoutStyles.backgroundColor = theme.backgroundColor;
+  }
+  layoutStyles.textColor = theme.textColor;
+  
+  return layoutStyles;
 }
