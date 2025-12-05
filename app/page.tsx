@@ -11,6 +11,7 @@ import {
   getAllDecksFromStorage,
   getDeckFromStorage,
   deleteDeckFromStorage,
+  renameDeckInStorage,
   createDeck,
   updateDeck,
   exportDeckToJSON,
@@ -364,15 +365,27 @@ export default function Home() {
     });
   };
 
-  const handleDeleteDeck = (deckId: string) => {
-    deleteDeckFromStorage(deckId);
+  const handleDeleteDeck = (deck: SavedDeck) => {
+    deleteDeckFromStorage(deck.id);
     setSavedDecks(getAllDecksFromStorage());
-    if (currentDeckId === deckId) {
+    if (currentDeckId === deck.id) {
       setSlides([initialState]);
       setSelectedSlideIndex(0);
       setState(initialState);
       setCurrentDeckId(null);
       setDeckName('');
+    }
+  };
+
+  const handleRenameDeck = (deck: SavedDeck) => {
+    const newName = prompt('Enter new name:', deck.name);
+    if (newName && newName.trim() && newName !== deck.name) {
+      renameDeckInStorage(deck.id, newName.trim());
+      setSavedDecks(getAllDecksFromStorage());
+      // Update deckName if this is the current deck
+      if (currentDeckId === deck.id) {
+        setDeckName(newName.trim());
+      }
     }
   };
 
@@ -533,7 +546,9 @@ export default function Home() {
         </div>
         <DeckGrid 
           decks={savedDecks} 
-          onDeckClick={(deck) => handleLoadDeck(deck.id)} 
+          onDeckClick={(deck) => handleLoadDeck(deck.id)}
+          onRename={handleRenameDeck}
+          onDelete={handleDeleteDeck}
         />
         
         {/* Create Dialog */}

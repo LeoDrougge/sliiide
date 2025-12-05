@@ -67,6 +67,16 @@ export function updateDeck(deck: SavedDeck, slides: SlideState[] | SlideState): 
   };
 }
 
+export function renameDeckInStorage(id: string, newName: string): void {
+  const decks = getAllDecksFromStorage();
+  const deck = decks.find(d => d.id === id);
+  if (deck) {
+    deck.name = newName;
+    deck.updatedAt = Date.now();
+    saveDeckToStorage(deck);
+  }
+}
+
 export function exportDeckToJSON(deck: SavedDeck): string {
   return JSON.stringify(deck, null, 2);
 }
