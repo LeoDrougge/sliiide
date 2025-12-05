@@ -187,9 +187,9 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   const titleHeight = titleLines.length * titleLineHeight;
 
   const bodyMaxWidth = 960;
-  const bodyFontSize = 22;
-  const bodyLetterSpacing = -0.66;
-  const bodyLineHeight = 27;
+  const bodyFontSize = 30; // body-large
+  const bodyLetterSpacing = -0.6; // -2% of 30px
+  const bodyLineHeight = 42;
   const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
   const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
 
@@ -227,6 +227,8 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
     },
     titleLines,
     bodyLines,
+    bodyLineHeight: bodyLineHeight,
+    bodyClassName: 'slide-body-large', // Use body-large style
   };
 }
 

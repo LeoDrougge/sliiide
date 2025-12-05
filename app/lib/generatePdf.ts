@@ -496,11 +496,11 @@ async function generateCenteredLayout(
     titleLines.push(currentLine);
   }
 
-  // Body text - 40px below title, centered horizontally, flows downward
-  // 22px font size, 27px line-height, -3% letter-spacing
-  const bodyFontSize = 22;
-  const bodyLineHeight = 27;
-  const bodyLetterSpacing = -(bodyFontSize * 0.03);
+  // Body text - 80px below title, centered horizontally, flows downward
+  // body-large: 30px font size, 42px line-height, -2% letter-spacing
+  const bodyFontSize = 30;
+  const bodyLineHeight = 42;
+  const bodyLetterSpacing = -0.6; // -2% of 30px
   const bodyMaxWidth = 960;
 
   // Split text into paragraphs
@@ -545,7 +545,7 @@ async function generateCenteredLayout(
   // Title bottom is at: centerY + (totalHeight / 2) - titleHeight
   const titleBottomY = pageCenterY + (totalContentHeight / 2) - titleHeight;
   
-  // Body starts 40px below title bottom (lower Y value = further down on page)
+  // Body starts 80px below title bottom (lower Y value = further down on page)
   const bodyStartY = titleBottomY - gapHeight;
 
   // Draw title lines from bottom up (grows upward from titleBottomY)
