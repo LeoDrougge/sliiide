@@ -663,7 +663,9 @@ export async function generatePdf(state: SlideState): Promise<Uint8Array> {
   }
   
   // Choose layout based on state.layout
-  if (state.layout === 'quadrant-1-2') {
+  if (state.layout === 'title') {
+    await generateDefaultLayout(page, state, martianMono, ttNorms, ttNormsBold);
+  } else if (state.layout === 'quadrant-1-2') {
     await generateQuadrantLayout(page, state, martianMono, ttNorms, ttNormsBold);
   } else if (state.layout === 'quadrant-1-2-top') {
     await generateQuadrantTopLayout(page, state, martianMono, ttNorms, ttNormsBold);
@@ -717,7 +719,9 @@ export async function generateMultiPagePdf(slides: SlideState[]): Promise<Uint8A
     const page = pdfDoc.addPage([1920, 1080]);
     
     // Choose layout based on slide.layout
-    if (slide.layout === 'quadrant-1-2') {
+    if (slide.layout === 'title') {
+      await generateDefaultLayout(page, slide, martianMono, ttNorms, ttNormsBold);
+    } else if (slide.layout === 'quadrant-1-2') {
       await generateQuadrantLayout(page, slide, martianMono, ttNorms, ttNormsBold);
     } else if (slide.layout === 'quadrant-1-2-top') {
       await generateQuadrantTopLayout(page, slide, martianMono, ttNorms, ttNormsBold);

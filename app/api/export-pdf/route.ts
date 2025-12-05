@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
       header: slide.header || '',
       title: slide.title || '',
       bodyText: slide.bodyText || '',
-      layout: slide.layout || 'default',
+      layout: slide.layout || 'title',
     }));
 
     // Generate HTML for all slides

@@ -26,7 +26,7 @@ const initialState: SlideState = {
   header: 'Q4 Update — Draft',
   title: 'Roadmap Overview',
   bodyText: dummyText,
-  layout: 'default',
+  layout: 'title',
 };
 
 export default function Home() {
@@ -286,7 +286,7 @@ export default function Home() {
         header: '',
         title: '',
         bodyText: '',
-        layout: 'default',
+        layout: 'title',
       };
       updated.push(newSlide);
       return updated;
@@ -300,7 +300,7 @@ export default function Home() {
       header: '',
       title: '',
       bodyText: '',
-      layout: 'default',
+      layout: 'title',
     });
   };
 
@@ -990,13 +990,13 @@ export default function Home() {
           <div className="text-sm font-normal mb-2">Layout</div>
           <div className="flex flex-col gap-1">
             <button
-              onClick={() => setState({ ...state, layout: 'default' })}
+              onClick={() => setState({ ...state, layout: 'title' })}
               className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
-                state.layout === 'default' ? 'bg-gray-100' : ''
+                state.layout === 'title' ? 'bg-gray-100' : ''
               }`}
               type="button"
             >
-              Default Layout
+              Title
             </button>
             <button
               onClick={() => setState({ ...state, layout: 'quadrant-1-2' })}

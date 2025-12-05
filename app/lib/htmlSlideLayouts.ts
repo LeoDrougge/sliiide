@@ -281,6 +281,8 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
 
 export function getLayoutStyles(state: SlideState): LayoutStyles {
   switch (state.layout) {
+    case 'title':
+      return getDefaultLayoutStyles(state);
     case 'quadrant-1-2':
       return getQuadrantLayoutStyles(state);
     case 'quadrant-1-2-top':

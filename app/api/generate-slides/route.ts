@@ -49,7 +49,11 @@ ${slideCountInstruction}
 ${summaryInstruction}
 
 VIKTIGT: 
-- Varje slide ska ha tydligt innehåll
+- Första sliden ska vara en titelsida med temat för presentationen
+  - header: Lämna tom eller en kort beskrivning
+  - title: Huvudtemat/titeln för presentationen
+  - bodyText: Lämna tom eller en kort beskrivning av vad presentationen handlar om
+- Övriga slides ska ha tydligt innehåll
 - Använd faktiskt innehåll från anteckningarna, hitta inte på saker
 
 Anteckningar:
@@ -61,12 +65,18 @@ Returnera JSON-array med SlideState objekt i formatet:
     "header": "...",
     "title": "...",
     "bodyText": "...",
-    "layout": "default"
+    "layout": "title"
+  },
+  {
+    "header": "...",
+    "title": "...",
+    "bodyText": "...",
+    "layout": "title"
   },
   ...
 ]
 
-Använd "default" som layout för alla slides. Returnera ENDAST JSON, ingen ytterligare text.`;
+Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterligare text.`;
 
     // Try Claude 4.5 Sonnet first, then fallback to 3.5
     let message;
@@ -146,7 +156,7 @@ Använd "default" som layout för alla slides. Returnera ENDAST JSON, ingen ytte
         header: slide.header || '',
         title: slide.title || '',
         bodyText: slide.bodyText || '',
-        layout: slide.layout || 'default',
+        layout: slide.layout || 'title',
       };
     });
 
