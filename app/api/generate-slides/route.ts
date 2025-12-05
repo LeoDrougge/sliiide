@@ -68,16 +68,18 @@ VIKTIGT:
 - Om presentationen är längre än 5 slides, ska slide 2 använda "intro" layout och innehålla en sammanfattning av hela presentationen i ett stycke i bodyText. Denna slide fungerar som en översikt över innehållet.
   - layout: "intro" för slide 2 när presentationen är längre än 5 slides
   - title: Lämna tom (intro-layout använder inte title)
-  - bodyText: En sammanfattande text i ett stycke som ger en översikt över presentationens huvudpunkter
+  - bodyText: Skriv ett enda kort stycke utan rubrik eller punktlistor. Undvik allt metaprat: inget "presentationen", "vi", "fokuserar på", "handlar om" eller liknande. Skriv bara själva innehållets kärna som ett direkt konstaterande, i enkelt och lättläst språk. Ingen ny information.
 - Slide 3 ska vara en innehållsförteckning (TOC) med avdelningsrubriker när presentationen är längre än 5 slides.
-  - layout: "quadrant-1-2-large" för TOC-sliden
+  - layout: "toc" för TOC-sliden
   - title: "Innehållsförteckning"
-  - bodyText: Lista av avdelningsrubriker (en per rad, kommer att formateras som bullets)
+  - bodyText: Lista av avdelningsrubriker (en per rad, kommer att formateras som numrerad lista)
 - För att strukturera presentationen: använd "avdelare" layout för avdelningsrubriker (t.ex. "Del 1", "Strategi", "Resultat"). Dessa slides ska ha ljusgrå bakgrund och fungerar som avdelningar i presentationen.
   - layout: "avdelare" för avdelningsrubriker
   - title: Avdelningsrubriken
   - bodyText: Lämna tom eller kort beskrivning
-- Övriga slides: Använd faktiskt innehåll från anteckningarna, hitta inte på saker
+- Övriga slides: Använd faktiskt innehåll från anteckningarna - förfina språket om det behövs för att förbättra klarhet och rytm, men hitta inte på saker. Standard-layout för vanliga slides är "quadrant-1-2-large".
+  - layout: "quadrant-1-2-large" för vanliga slides (inte title, intro, avdelare eller TOC)
+  - Om innehållet är i punktform (flera rader/poänger), sätt useBullets: true
 - Sätt alltid overline till tom sträng (""). Den kommer automatiskt att uppdateras i systemet.
 
 Anteckningar:
@@ -107,12 +109,13 @@ Returnera JSON-array med SlideState objekt i formatet:
     "overline": "",
     "title": "...",
     "bodyText": "...",
-    "layout": "title"
+    "layout": "quadrant-1-2-large",
+    "useBullets": false
   },
   ...
 ]
 
-Använd "title" som layout för vanliga slides, "avdelare" för avdelningsrubriker, och "intro" för slide 2 om presentationen är längre än 5 slides. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
+Använd "title" för titelsidan, "intro" för slide 2 om presentationen är längre än 5 slides, "toc" för innehållsförteckning, "avdelare" för avdelningsrubriker, och "quadrant-1-2-large" för alla andra slides. Om innehållet är i punktform, sätt useBullets: true. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
 
     // Add brief to prompt if provided
     let fullPrompt = prompt;
@@ -197,12 +200,26 @@ ${prompt}`;
       if (!slide || typeof slide !== 'object') {
         throw new Error(`Invalid slide at index ${index}`);
       }
+      
+      // Determine default layout
+      let defaultLayout: string;
+      if (index === 0) {
+        defaultLayout = 'title'; // First slide is always title
+      } else {
+        defaultLayout = 'quadrant-1-2-large'; // Default for other slides
+      }
+      
+      // Detect if bodyText is in bullet point format (multiple lines)
+      const bodyText = slide.bodyText || '';
+      const isBulletFormat = bodyText.split('\n').filter(line => line.trim()).length > 1;
+      
       return {
         overline: slide.overline || '',
         title: slide.title || '',
-        bodyText: slide.bodyText || '',
-        layout: slide.layout || 'title',
-        useBullets: slide.useBullets ?? false,
+        bodyText: bodyText,
+        layout: slide.layout || defaultLayout,
+        // Set useBullets to true if content is in bullet format, or if explicitly set
+        useBullets: slide.useBullets !== undefined ? slide.useBullets : isBulletFormat,
       };
     });
 
