@@ -118,28 +118,30 @@ export default function HtmlSlidePreview({
               >
                 {titleSlideTitle || slide.overline}
               </div>
-              <div 
-                className="slide-title" 
-                style={{
-                  ...layoutStyles.title,
-                  ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
-                  ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
-                  ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
-                }}
-                contentEditable
-                suppressContentEditableWarning
-                data-placeholder="Title"
-                onBlur={(e) => {
-                  const text = e.currentTarget.textContent || '';
-                  onTitleChange?.(text);
-                }}
-                onKeyDown={(e) => {
-                  // Allow Enter for multi-line titles
-                  // Browser will handle wrapping with CSS
-                }}
-              >
-                {slide.title}
-              </div>
+              {layoutStyles.title.display !== 'none' && (
+                <div 
+                  className="slide-title" 
+                  style={{
+                    ...layoutStyles.title,
+                    ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
+                    ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
+                    ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+                  }}
+                  contentEditable
+                  suppressContentEditableWarning
+                  data-placeholder="Title"
+                  onBlur={(e) => {
+                    const text = e.currentTarget.textContent || '';
+                    onTitleChange?.(text);
+                  }}
+                  onKeyDown={(e) => {
+                    // Allow Enter for multi-line titles
+                    // Browser will handle wrapping with CSS
+                  }}
+                >
+                  {slide.title}
+                </div>
+              )}
               {(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets)) ? (
                 // Editable mode with bullet points using CSS ::marker
                 editable ? (
@@ -206,23 +208,25 @@ export default function HtmlSlidePreview({
               <div className="slide-overline" style={layoutStyles.overline}>
                 {titleSlideTitle || slide.overline}
               </div>
-              <div 
-                className="slide-title" 
-                style={{
-                  ...layoutStyles.title,
-                  ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
-                  ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
-                  ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
-                }}
-              >
-                {layoutStyles.titleLines ? (
-                  layoutStyles.titleLines.map((line, i) => (
-                    <div key={i} style={{ lineHeight: `${layoutStyles.titleLineHeight || 125}px` }}>{line}</div>
-                  ))
-                ) : (
-                  slide.title
-                )}
-              </div>
+              {layoutStyles.title.display !== 'none' && (
+                <div 
+                  className="slide-title" 
+                  style={{
+                    ...layoutStyles.title,
+                    ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
+                    ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
+                    ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+                  }}
+                >
+                  {layoutStyles.titleLines ? (
+                    layoutStyles.titleLines.map((line, i) => (
+                      <div key={i} style={{ lineHeight: `${layoutStyles.titleLineHeight || 125}px` }}>{line}</div>
+                    ))
+                  ) : (
+                    slide.title
+                  )}
+                </div>
+              )}
               <div className={layoutStyles.bodyClassName || 'slide-body'} style={layoutStyles.body}>
                 {layoutStyles.bodyUseBullets && layoutStyles.bodyLines ? (
                   // Render with custom bullet points

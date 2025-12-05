@@ -172,6 +172,15 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             color: #000;
         }
 
+        .slide-intro-text {
+            font-family: 'TT Norms', sans-serif;
+            font-weight: 400;
+            font-size: 52px;
+            line-height: 64px;
+            letter-spacing: -1.56px; /* -3% of 52px */
+            color: #000;
+        }
+
         /* Bullet list styles */
         .slide-bullet-list {
             list-style: none;
@@ -224,11 +233,13 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             <div class="slide-content">
                 <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
                 <div class="slide-overline" style="${overlineStyle}">${escapeHtml(slide.overline)}</div>
+                ${layoutStyles.title.display !== 'none' ? `
                 <div class="slide-title" style="${titleStyle}">
                     ${layoutStyles.titleLines 
                       ? layoutStyles.titleLines.map(line => `<div style="line-height: ${layoutStyles.titleLineHeight || 125}px;">${escapeHtml(line)}</div>`).join('')
                       : escapeHtml(slide.title)}
                 </div>
+                ` : ''}
                 ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
                   ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                       ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
@@ -442,6 +453,15 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             font-size: 30px;
             line-height: 42px;
             letter-spacing: -0.6px; /* -2% of 30px */
+            color: #000;
+        }
+
+        .slide-intro-text {
+            font-family: 'TT Norms', sans-serif;
+            font-weight: 400;
+            font-size: 52px;
+            line-height: 64px;
+            letter-spacing: -1.56px; /* -3% of 52px */
             color: #000;
         }
 

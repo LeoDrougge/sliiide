@@ -65,6 +65,14 @@ VIKTIGT:
   - title: Huvudtemat/titeln för presentationen
   - bodyText: Lämna tom eller en kort beskrivning av vad presentationen handlar om
   - layout: "title"
+- Om presentationen är längre än 5 slides, ska slide 2 använda "intro" layout och innehålla en sammanfattning av hela presentationen i ett stycke i bodyText. Denna slide fungerar som en översikt över innehållet.
+  - layout: "intro" för slide 2 när presentationen är längre än 5 slides
+  - title: Lämna tom (intro-layout använder inte title)
+  - bodyText: En sammanfattande text i ett stycke som ger en översikt över presentationens huvudpunkter
+- Slide 3 ska vara en innehållsförteckning (TOC) med avdelningsrubriker när presentationen är längre än 5 slides.
+  - layout: "quadrant-1-2-large" för TOC-sliden
+  - title: "Innehållsförteckning"
+  - bodyText: Lista av avdelningsrubriker (en per rad, kommer att formateras som bullets)
 - För att strukturera presentationen: använd "avdelare" layout för avdelningsrubriker (t.ex. "Del 1", "Strategi", "Resultat"). Dessa slides ska ha ljusgrå bakgrund och fungerar som avdelningar i presentationen.
   - layout: "avdelare" för avdelningsrubriker
   - title: Avdelningsrubriken
@@ -85,6 +93,12 @@ Returnera JSON-array med SlideState objekt i formatet:
   },
   {
     "overline": "",
+    "title": "",
+    "bodyText": "Sammanfattning av presentationen i ett stycke...",
+    "layout": "intro"
+  },
+  {
+    "overline": "",
     "title": "...",
     "bodyText": "...",
     "layout": "avdelare"
@@ -98,7 +112,7 @@ Returnera JSON-array med SlideState objekt i formatet:
   ...
 ]
 
-Använd "title" som layout för vanliga slides och "avdelare" för avdelningsrubriker. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
+Använd "title" som layout för vanliga slides, "avdelare" för avdelningsrubriker, och "intro" för slide 2 om presentationen är längre än 5 slides. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
 
     // Add brief to prompt if provided
     let fullPrompt = prompt;
@@ -198,35 +212,74 @@ ${prompt}`;
       slide.overline = titleSlideTitle;
     });
 
-    // If more than 5 slides, insert Table of Contents as slide 2 (index 1)
+    // If more than 5 slides, ensure intro (slide 2) and TOC (slide 3) exist
     if (validatedSlides.length > 5) {
+      const slide2 = validatedSlides[1]; // Slide 2 (index 1)
+      const slide3 = validatedSlides[2]; // Slide 3 (index 2)
+      
+      // Ensure slide 2 is an intro slide
+      if (!slide2 || slide2.layout !== 'intro') {
+        // Create intro slide with summary - Claude should have created this,
+        // but if not, we'll create a placeholder that needs manual editing
+        const introSlide = {
+          overline: titleSlideTitle,
+          title: '',
+          bodyText: slide2?.bodyText || 'Sammanfattning av presentationen kommer här...',
+          layout: 'intro' as const,
+          useBullets: false,
+        };
+        
+        // Replace slide 2 with intro slide, or insert if missing
+        if (slide2) {
+          validatedSlides[1] = introSlide;
+        } else {
+          validatedSlides.splice(1, 0, introSlide);
+        }
+      }
+      
+      // Ensure slide 3 is a TOC slide (after intro)
       // Get titles from "avdelare" slides for TOC (section dividers)
-      // Skip title slide (index 0), then filter for "avdelare" layout slides
+      // Skip title slide (index 0) and intro slide (index 1), then filter for "avdelare" layout slides
       const tocTitles = validatedSlides
-        .slice(1) // Skip title slide
+        .slice(2) // Skip title slide and intro slide
         .filter(slide => slide.layout === 'avdelare')
         .map(slide => slide.title)
         .filter(title => title.trim());
 
-      // If no avdelare slides found, fall back to all slide titles (except title slide)
+      // If no avdelare slides found, fall back to all slide titles (except title and intro slides)
       const finalTocTitles = tocTitles.length > 0 
         ? tocTitles 
         : validatedSlides
-            .slice(1) // Skip title slide
+            .slice(2) // Skip title slide and intro slide
             .map(slide => slide.title)
             .filter(title => title.trim());
 
-      // Create TOC slide with same structure as validatedSlides
-      const tocSlide = {
-        overline: titleSlideTitle, // Use title slide's title as overline
-        title: 'Innehållsförteckning',
-        bodyText: finalTocTitles.join('\n'),
-        layout: 'quadrant-1-2-large' as const,
-        useBullets: true,
-      };
+      // Check if slide 3 is already a TOC slide
+      const isTocSlide = slide3?.title === 'Innehållsförteckning' || 
+                         slide3?.layout === 'quadrant-1-2-large';
 
-      // Insert TOC as slide 2 (index 1)
-      validatedSlides.splice(1, 0, tocSlide);
+      if (!slide3 || !isTocSlide) {
+        // Create TOC slide with same structure as validatedSlides
+        const tocSlide = {
+          overline: titleSlideTitle, // Use title slide's title as overline
+          title: 'Innehållsförteckning',
+          bodyText: finalTocTitles.join('\n'),
+          layout: 'quadrant-1-2-large' as const,
+          useBullets: true,
+        };
+
+        // Replace slide 3 with TOC slide, or insert if missing
+        if (slide3) {
+          validatedSlides[2] = tocSlide;
+        } else {
+          validatedSlides.splice(2, 0, tocSlide);
+        }
+      } else {
+        // Update existing TOC slide content
+        slide3.bodyText = finalTocTitles.join('\n');
+        slide3.layout = 'quadrant-1-2-large';
+        slide3.useBullets = true;
+      }
     }
 
     return NextResponse.json({ slides: validatedSlides });

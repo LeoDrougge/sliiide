@@ -151,6 +151,16 @@ label {
   color: #000;
 }
 
+/* Intro text style - TT Norms Regular 52px, line-height 64px, letter-spacing -3% */
+.slide-intro-text {
+  font-family: 'TT Norms', sans-serif;
+  font-weight: 400;
+  font-size: 52px;
+  line-height: 64px;
+  letter-spacing: -1.56px; /* -3% of 52px */
+  color: #000;
+}
+
 /* Bullet list styles using CSS ::before for better control */
 .slide-bullet-list {
   list-style: none;
@@ -196,6 +206,7 @@ label {
 .slide-title[contenteditable]:focus,
 .slide-body[contenteditable]:focus,
 .slide-body-large[contenteditable]:focus,
+.slide-intro-text[contenteditable]:focus,
 .slide-bullet-list[contenteditable]:focus {
   outline: 2px solid rgba(0, 0, 255, 0.3);
   outline-offset: 2px;
@@ -203,7 +214,8 @@ label {
 
 .slide-title[contenteditable]:empty::before,
 .slide-body[contenteditable]:empty::before,
-.slide-body-large[contenteditable]:empty::before {
+.slide-body-large[contenteditable]:empty::before,
+.slide-intro-text[contenteditable]:empty::before {
   content: attr(data-placeholder);
   color: rgba(0, 0, 0, 0.3);
   pointer-events: none;

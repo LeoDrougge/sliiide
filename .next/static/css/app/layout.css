@@ -962,13 +962,13 @@ label {
   color: #000;
 }
 
-/* Title - TT Norms Bold 125px, line-height 125px, letter-spacing -5px */
+/* Title - TT Norms Bold 125px default (82px for quadrant/centered layouts), line-height matches font size, letter-spacing -5px default (-4.1px for 82px) */
 .slide-title {
   font-family: 'TT Norms', sans-serif;
   font-weight: 700;
-  font-size: 125px !important;
-  line-height: 125px;
-  letter-spacing: -5px !important;
+  font-size: 125px; /* Default, overridden by inline styles for other layouts */
+  line-height: 125px; /* Default, overridden by inline styles for other layouts */
+  letter-spacing: -5px; /* Default, overridden by inline styles for other layouts */
   color: #000;
 }
 
@@ -988,6 +988,16 @@ label {
   font-size: 30px !important;
   line-height: 42px;
   letter-spacing: -0.6px !important; /* -2% of 30px */
+  color: #000;
+}
+
+/* Intro text style - TT Norms Regular 52px, line-height 64px, letter-spacing -3% */
+.slide-intro-text {
+  font-family: 'TT Norms', sans-serif;
+  font-weight: 400;
+  font-size: 52px;
+  line-height: 64px;
+  letter-spacing: -1.56px; /* -3% of 52px */
   color: #000;
 }
 
@@ -1036,6 +1046,7 @@ label {
 .slide-title[contenteditable]:focus,
 .slide-body[contenteditable]:focus,
 .slide-body-large[contenteditable]:focus,
+.slide-intro-text[contenteditable]:focus,
 .slide-bullet-list[contenteditable]:focus {
   outline: 2px solid rgba(0, 0, 255, 0.3);
   outline-offset: 2px;
@@ -1043,7 +1054,8 @@ label {
 
 .slide-title[contenteditable]:empty::before,
 .slide-body[contenteditable]:empty::before,
-.slide-body-large[contenteditable]:empty::before {
+.slide-body-large[contenteditable]:empty::before,
+.slide-intro-text[contenteditable]:empty::before {
   content: attr(data-placeholder);
   color: rgba(0, 0, 0, 0.3);
   pointer-events: none;

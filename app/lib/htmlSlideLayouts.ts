@@ -1,5 +1,13 @@
 import type { SlideState } from './types';
 
+// Title font size constants
+const TITLE_FONT_SIZE_LARGE = 125; // For "title" and "avdelare" layouts
+const TITLE_FONT_SIZE_SMALL = 82; // For quadrant and centered layouts
+const TITLE_LETTER_SPACING_LARGE = -5; // -5px for large titles
+const TITLE_LETTER_SPACING_SMALL = -4.1; // -5% of 82px for small titles
+const TITLE_LINE_HEIGHT_LARGE = 125; // 100% of font size
+const TITLE_LINE_HEIGHT_SMALL = 82; // 100% of font size
+
 // Helper to estimate text width (approximate, since we don't have exact font metrics in browser)
 // These are approximations based on average character widths
 const ESTIMATED_CHAR_WIDTH_TITLE = 70; // Approx width of 'M' at 125px font size
@@ -29,7 +37,9 @@ function wrapText(text: string, maxWidth: number, fontSize: number, letterSpacin
   for (const word of words) {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     // Approximate width calculation
-    const charWidth = fontSize === 125 ? ESTIMATED_CHAR_WIDTH_TITLE : ESTIMATED_CHAR_WIDTH_BODY;
+    // For title sizes (82px or 125px), use title char width estimation
+    // For body text (22px, 30px, etc.), use body char width estimation
+    const charWidth = fontSize >= 82 ? ESTIMATED_CHAR_WIDTH_TITLE * (fontSize / 125) : ESTIMATED_CHAR_WIDTH_BODY;
     const testWidth = testLine.length * charWidth + (testLine.length - 1) * letterSpacing;
 
     if (testWidth <= maxWidth) {
@@ -55,8 +65,8 @@ export function getDefaultLayoutStyles(state: SlideState): LayoutStyles {
   const titleY = 320; // ~8 grid units from top
   const titleX = 72; // 80px - 8px nudge
   const titleMaxWidth = 960; // 50% of 1920px
-  const titleFontSize = 125;
-  const titleLetterSpacing = -5;
+  const titleFontSize = TITLE_FONT_SIZE_LARGE;
+  const titleLetterSpacing = TITLE_LETTER_SPACING_LARGE;
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
 
   const bodyBottom = 80; // Bottom margin
@@ -99,6 +109,57 @@ export function getAvdelareLayoutStyles(state: SlideState): LayoutStyles {
   };
 }
 
+export function getIntroLayoutStyles(state: SlideState): LayoutStyles {
+  const overlineY = 80;
+  const overlineX = 80;
+
+  // Text box: from top to bottom (with margins), up to midpoint in x-direction
+  // Top: 80px (margin)
+  // Bottom: 80px (margin)
+  // Left: 80px (margin)
+  // Right: 960px (midpoint, half of 1920px)
+  // Width: 960px - 80px = 880px (from left margin to midpoint)
+  // Height: 1080px - 80px - 80px = 920px (full height minus margins)
+  
+  const textBoxTop = 80;
+  const textBoxLeft = 80;
+  const textBoxWidth = 880; // From left margin to midpoint
+  const textBoxHeight = 920; // Full height minus top/bottom margins
+
+  // Use intro text style (52px, Regular, line-height 64px, letter-spacing -3%)
+  const textFontSize = 52;
+  const textLineHeight = 64;
+  const textLetterSpacing = -1.56; // -3% of 52px
+  const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
+  const bodyLines = bodyParagraphs.map(p => wrapText(p, textBoxWidth, textFontSize, textLetterSpacing));
+
+  return {
+    overline: {
+      position: 'absolute' as const,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
+    },
+    title: {
+      display: 'none', // No title in intro layout
+    },
+    body: {
+      position: 'absolute' as const,
+      top: `${textBoxTop}px`,
+      left: `${textBoxLeft}px`,
+      width: `${textBoxWidth}px`,
+      height: `${textBoxHeight}px`,
+      maxWidth: `${textBoxWidth}px`,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+    },
+    bodyLines,
+    bodyLineHeight: textLineHeight,
+    bodyClassName: 'slide-intro-text', // Use intro text style
+  };
+}
+
 export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
   const overlineY = 80;
   const overlineX = 80;
@@ -107,9 +168,9 @@ export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
   // Quadrant 3: x=80-960, y=80-540 (bottom-left)
   const titleX = 72; // Same nudge as default
   const titleMaxWidth = 800; // 880px - 80px margins
-  const titleFontSize = 82; // Updated to 82px
-  const titleLetterSpacing = -4.1; // -5% of 82px
-  const titleLineHeight = 82; // 100% of font size
+  const titleFontSize = TITLE_FONT_SIZE_SMALL;
+  const titleLetterSpacing = TITLE_LETTER_SPACING_SMALL;
+  const titleLineHeight = TITLE_LINE_HEIGHT_SMALL;
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
   const titleBottom = 460; // Distance from bottom of frame
 
@@ -201,9 +262,9 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   const overlineX = 80;
 
   const titleMaxWidth = 960;
-  const titleFontSize = 82; // Updated to 82px
-  const titleLetterSpacing = -4.1; // -5% of 82px
-  const titleLineHeight = 82; // 100% of font size
+  const titleFontSize = TITLE_FONT_SIZE_SMALL;
+  const titleLetterSpacing = TITLE_LETTER_SPACING_SMALL;
+  const titleLineHeight = TITLE_LINE_HEIGHT_SMALL;
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
   const titleHeight = titleLines.length * titleLineHeight;
 
@@ -318,6 +379,8 @@ export function getLayoutStyles(state: SlideState): LayoutStyles {
       return getDefaultLayoutStyles(state);
     case 'avdelare':
       return getAvdelareLayoutStyles(state);
+    case 'intro':
+      return getIntroLayoutStyles(state);
     case 'quadrant-1-2':
       return getQuadrantLayoutStyles(state);
     case 'quadrant-1-2-top':

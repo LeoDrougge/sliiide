@@ -847,15 +847,32 @@ export default function Home() {
       {/* Notes Dialog */}
       {showNotesDialog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 border border-gray-200" style={{ width: '600px', maxHeight: '80vh' }}>
+          <div className="bg-white p-4 border border-gray-200 overflow-y-auto" style={{ width: '600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <h2 className="text-lg mb-2">Generate Slides from Notes</h2>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Paste your notes here..."
-              className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none mb-4"
-              style={{ minHeight: '300px' }}
-            />
+            
+            {/* Brief field */}
+            <div className="mb-4">
+              <label className="text-sm mb-1 block">Brief (valfritt)</label>
+              <textarea
+                value={brief}
+                onChange={(e) => setBrief(e.target.value)}
+                placeholder="Beskriv ämne, målgrupp, kontext, etc. som kan hjälpa Claude skapa ett bättre utkast..."
+                className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none"
+                style={{ minHeight: '100px' }}
+              />
+            </div>
+
+            {/* Notes field */}
+            <div className="mb-4">
+              <label className="text-sm mb-1 block">Anteckningar</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Paste your notes here..."
+                className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none"
+                style={{ minHeight: '200px' }}
+              />
+            </div>
             
             {/* Amount of slides section */}
             <div className="mb-4">
@@ -1058,6 +1075,15 @@ export default function Home() {
               type="button"
             >
               Avdelare
+            </button>
+            <button
+              onClick={() => setState({ ...state, layout: 'intro' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'intro' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Intro
             </button>
             <button
               onClick={() => setState({ ...state, layout: 'quadrant-1-2' })}
