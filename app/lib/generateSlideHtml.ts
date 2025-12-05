@@ -25,7 +25,14 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
   const layoutStyles = getLayoutStyles(slide);
   
   const overlineStyle = styleToString(layoutStyles.overline);
-  const titleStyle = styleToString(layoutStyles.title);
+  // Merge custom title font properties if they exist
+  const titleStyleObj = {
+    ...layoutStyles.title,
+    ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
+    ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
+    ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+  };
+  const titleStyle = styleToString(titleStyleObj);
   const bodyStyle = styleToString(layoutStyles.body);
 
   const gridClass = showGrid ? '' : 'hidden';
@@ -219,7 +226,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
                 <div class="slide-overline" style="${overlineStyle}">${escapeHtml(slide.overline)}</div>
                 <div class="slide-title" style="${titleStyle}">
                     ${layoutStyles.titleLines 
-                      ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
+                      ? layoutStyles.titleLines.map(line => `<div style="line-height: ${layoutStyles.titleLineHeight || 125}px;">${escapeHtml(line)}</div>`).join('')
                       : escapeHtml(slide.title)}
                 </div>
                 ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
@@ -250,7 +257,14 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
     const layoutStyles = getLayoutStyles(slide);
 
     const overlineStyle = styleToString(layoutStyles.overline);
-    const titleStyle = styleToString(layoutStyles.title);
+    // Merge custom title font properties if they exist
+    const titleStyleObj = {
+      ...layoutStyles.title,
+      ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
+      ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
+      ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+    };
+    const titleStyle = styleToString(titleStyleObj);
     const bodyStyle = styleToString(layoutStyles.body);
 
     const gridClass = showGrid ? '' : 'hidden';

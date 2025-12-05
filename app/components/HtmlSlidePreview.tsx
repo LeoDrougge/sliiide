@@ -120,7 +120,12 @@ export default function HtmlSlidePreview({
               </div>
               <div 
                 className="slide-title" 
-                style={layoutStyles.title}
+                style={{
+                  ...layoutStyles.title,
+                  ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
+                  ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
+                  ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+                }}
                 contentEditable
                 suppressContentEditableWarning
                 data-placeholder="Title"
@@ -201,10 +206,18 @@ export default function HtmlSlidePreview({
               <div className="slide-overline" style={layoutStyles.overline}>
                 {titleSlideTitle || slide.overline}
               </div>
-              <div className="slide-title" style={layoutStyles.title}>
+              <div 
+                className="slide-title" 
+                style={{
+                  ...layoutStyles.title,
+                  ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
+                  ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
+                  ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+                }}
+              >
                 {layoutStyles.titleLines ? (
                   layoutStyles.titleLines.map((line, i) => (
-                    <div key={i} style={{ lineHeight: '125px' }}>{line}</div>
+                    <div key={i} style={{ lineHeight: `${layoutStyles.titleLineHeight || 125}px` }}>{line}</div>
                   ))
                 ) : (
                   slide.title

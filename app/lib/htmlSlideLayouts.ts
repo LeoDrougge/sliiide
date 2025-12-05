@@ -15,6 +15,9 @@ export interface LayoutStyles {
   bodyLineHeight?: number; // Line height for body (if different from default)
   bodyClassName?: string; // CSS class name for body (e.g., 'slide-body-large')
   backgroundColor?: string; // Background color for the slide (e.g., '#f5f5f5' for light gray)
+  titleLineHeight?: number; // Line height for title (if different from default)
+  titleFontSize?: number; // Font size for title (if different from default 125px)
+  titleLetterSpacing?: number; // Letter spacing for title (if different from default -5px)
 }
 
 // Helper function to wrap text (approximate width calculation)
@@ -104,8 +107,9 @@ export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
   // Quadrant 3: x=80-960, y=80-540 (bottom-left)
   const titleX = 72; // Same nudge as default
   const titleMaxWidth = 800; // 880px - 80px margins
-  const titleFontSize = 125;
-  const titleLetterSpacing = -5;
+  const titleFontSize = 82; // Updated to 82px
+  const titleLetterSpacing = -4.1; // -5% of 82px
+  const titleLineHeight = 82; // 100% of font size
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
   const titleBottom = 460; // Distance from bottom of frame
 
@@ -138,6 +142,9 @@ export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
     },
     titleLines,
     bodyLines,
+    titleLineHeight,
+    titleFontSize,
+    titleLetterSpacing,
   };
 }
 
@@ -148,8 +155,9 @@ export function getQuadrantTopLayoutStyles(state: SlideState): LayoutStyles {
   // Title in quadrant 1 (top-left): x=80-960, y=540-1080
   const titleX = 72;
   const titleMaxWidth = 800;
-  const titleFontSize = 125;
-  const titleLetterSpacing = -5;
+  const titleFontSize = 82; // Updated to 82px
+  const titleLetterSpacing = -4.1; // -5% of 82px
+  const titleLineHeight = 82; // 100% of font size
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
   const titleBottom = 100; // Distance from bottom of frame (top quadrant)
 
@@ -182,6 +190,9 @@ export function getQuadrantTopLayoutStyles(state: SlideState): LayoutStyles {
     },
     titleLines,
     bodyLines,
+    titleLineHeight,
+    titleFontSize,
+    titleLetterSpacing,
   };
 }
 
@@ -190,10 +201,10 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   const overlineX = 80;
 
   const titleMaxWidth = 960;
-  const titleFontSize = 125;
-  const titleLetterSpacing = -5;
+  const titleFontSize = 82; // Updated to 82px
+  const titleLetterSpacing = -4.1; // -5% of 82px
+  const titleLineHeight = 82; // 100% of font size
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
-  const titleLineHeight = 125;
   const titleHeight = titleLines.length * titleLineHeight;
 
   const bodyMaxWidth = 960;
@@ -203,14 +214,14 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
   const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
 
-  const gapHeight = 80; // Gap between title and body (doubled from original 40px)
+  const gapHeight = 40; // Gap between title and body (one grid unit = 40px)
   const pageCenterY = 540; // Middle of 1080px page (540px from top)
 
-  // Title: centered around midline, grows upward from its bottom
+  // Title: starts at midline, grows upward
   // Title bottom should be at midline (540px from top = 540px from bottom in 1080px container)
   const titleBottomFromBottom = pageCenterY;
 
-  // Body: 80px below title bottom (midline), flows downward
+  // Body: starts gapHeight (40px) below midline, flows downward
   const bodyTopFromTop = pageCenterY + gapHeight;
 
   return {
@@ -229,7 +240,7 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
     },
     body: {
       position: 'absolute' as const,
-      top: `${bodyTopFromTop}px`, // Body starts 80px below midline (620px from top)
+        top: `${bodyTopFromTop}px`, // Body starts 40px below midline (580px from top)
       left: '50%',
       transform: 'translateX(-50%)',
       maxWidth: `${bodyMaxWidth}px`,
@@ -239,6 +250,9 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
     bodyLines,
     bodyLineHeight: bodyLineHeight,
     bodyClassName: 'slide-body-large', // Use body-large style
+    titleLineHeight,
+    titleFontSize,
+    titleLetterSpacing,
   };
 }
 
@@ -249,10 +263,13 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
   // Title in quadrant 3 (bottom-left): same as quadrant-1-2
   const titleX = 72;
   const titleMaxWidth = 800;
-  const titleFontSize = 125;
-  const titleLetterSpacing = -5;
+  const titleFontSize = 82; // Updated to 82px
+  const titleLetterSpacing = -4.1; // -5% of 82px
+  const titleLineHeight = 82; // 100% of font size
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
-  const titleBottom = 460;
+  // Position title bottom at midline (540px from bottom in 1080px container)
+  const pageCenterY = 540;
+  const titleBottom = pageCenterY;
 
   // Body in quadrant 4 (bottom-right): using body-large style (30px font, 42px line-height)
   const bodyX = 960 + 40;
@@ -263,7 +280,8 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
   // Parse body text as bullet points (each line is a bullet point)
   const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
   const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
-  const bodyBottom = 460;
+  // Position body bottom at midline (540px from bottom in 1080px container)
+  const bodyBottom = pageCenterY;
 
   return {
     overline: {
@@ -288,6 +306,9 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
     bodyUseBullets: true, // Flag to indicate we should use custom bullet points
     bodyLineHeight: bodyLineHeight,
     bodyClassName: 'slide-body-large', // Use body-large style
+    titleLineHeight,
+    titleFontSize,
+    titleLetterSpacing,
   };
 }
 

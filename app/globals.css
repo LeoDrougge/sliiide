@@ -122,13 +122,13 @@ label {
   color: #000;
 }
 
-/* Title - TT Norms Bold 125px, line-height 125px, letter-spacing -5px */
+/* Title - TT Norms Bold 125px default (82px for quadrant/centered layouts), line-height matches font size, letter-spacing -5px default (-4.1px for 82px) */
 .slide-title {
   font-family: 'TT Norms', sans-serif;
   font-weight: 700;
-  font-size: 125px !important;
-  line-height: 125px;
-  letter-spacing: -5px !important;
+  font-size: 125px; /* Default, overridden by inline styles for other layouts */
+  line-height: 125px; /* Default, overridden by inline styles for other layouts */
+  letter-spacing: -5px; /* Default, overridden by inline styles for other layouts */
   color: #000;
 }
 
