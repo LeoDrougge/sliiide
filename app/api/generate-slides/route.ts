@@ -8,7 +8,7 @@ const anthropic = new Anthropic({
 
 export async function POST(request: NextRequest) {
   try {
-    const { notes, slideAmountMode, slideAmountMin, slideAmountMax } = await request.json();
+    const { notes, brief, slideAmountMode, slideAmountMin, slideAmountMax } = await request.json();
 
     if (!notes || typeof notes !== 'string' || !notes.trim()) {
       return NextResponse.json(
@@ -43,16 +43,32 @@ export async function POST(request: NextRequest) {
 
     const prompt = `Du ska dela upp dessa anteckningar i slides för en presentation. Varje slide ska ha:
 - overline: Denna kommer automatiskt att sättas till samma som title-sidan (första sliden). Du behöver inte bekymra dig om denna - sätt den alltid till tom sträng ("").
-- title: Huvudrubriken för sliden (max 60 tecken) - Detta är huvudbudskapet och den viktiga informationen.
+- title: Huvudrubriken för sliden (max 60 tecken) - Detta är huvudbudskapet och den viktiga informationen. Undvik ord över 15 tecken eftersom rubriktypsnittet är stort.
 - bodyText: Huvudinnehållet (2-4 rader, separera med \\n för radbrytningar)
 ${slideCountInstruction}
 ${summaryInstruction}
+
+VIKTIGA REGLER FÖR TEXTFÖRFINING:
+- Du får INTE lägga till någon ny information
+- Du får bara förbättra texten språkligt så att den passar en slidepresentation: kort, tydligt och rakt på sak
+- Behåll betydelsen exakt som i originalet
+- Inga exempel, inga förklaringar, inga nya ord som ändrar innehållet
+- Förfina bara rytm, klarhet och läsbarhet
+
+STRUKTUR OCH LÄSBARHET:
+- Varje slide ska kunna läsas och förstås självständigt
+- Rubrikerna ska hänga ihop som en logisk kedja – men varje rubrik ska också vara fullt begriplig på egen hand
 
 VIKTIGT: 
 - Första sliden ska vara en titelsida med temat för presentationen
   - overline: Sätt till tom sträng ("")
   - title: Huvudtemat/titeln för presentationen
   - bodyText: Lämna tom eller en kort beskrivning av vad presentationen handlar om
+  - layout: "title"
+- För att strukturera presentationen: använd "avdelare" layout för avdelningsrubriker (t.ex. "Del 1", "Strategi", "Resultat"). Dessa slides ska ha ljusgrå bakgrund och fungerar som avdelningar i presentationen.
+  - layout: "avdelare" för avdelningsrubriker
+  - title: Avdelningsrubriken
+  - bodyText: Lämna tom eller kort beskrivning
 - Övriga slides: Använd faktiskt innehåll från anteckningarna, hitta inte på saker
 - Sätt alltid overline till tom sträng (""). Den kommer automatiskt att uppdateras i systemet.
 
@@ -71,12 +87,27 @@ Returnera JSON-array med SlideState objekt i formatet:
     "overline": "",
     "title": "...",
     "bodyText": "...",
+    "layout": "avdelare"
+  },
+  {
+    "overline": "",
+    "title": "...",
+    "bodyText": "...",
     "layout": "title"
   },
   ...
 ]
 
-Använd "title" som layout för alla slides. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
+Använd "title" som layout för vanliga slides och "avdelare" för avdelningsrubriker. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
+
+    // Add brief to prompt if provided
+    let fullPrompt = prompt;
+    if (brief && typeof brief === 'string' && brief.trim()) {
+      fullPrompt = `BRIEF/KONTEXT:
+${brief.trim()}
+
+${prompt}`;
+    }
 
     // Try Claude 4.5 Sonnet first, then fallback to 3.5
     let message;
@@ -95,12 +126,12 @@ Använd "title" som layout för alla slides. Sätt overline till tom sträng (""
         message = await anthropic.messages.create({
           model: model,
           max_tokens: 4096,
-          messages: [
-            {
-              role: 'user',
-              content: prompt,
-            },
-          ],
+        messages: [
+          {
+            role: 'user',
+            content: fullPrompt,
+          },
+        ],
         });
         console.log(`Successfully used model: ${model}`);
         break; // Success, exit loop
@@ -169,18 +200,27 @@ Använd "title" som layout för alla slides. Sätt overline till tom sträng (""
 
     // If more than 5 slides, insert Table of Contents as slide 2 (index 1)
     if (validatedSlides.length > 5) {
-      // Get titles from slides for TOC
-      // Skip title slide (index 0), then include all others
+      // Get titles from "avdelare" slides for TOC (section dividers)
+      // Skip title slide (index 0), then filter for "avdelare" layout slides
       const tocTitles = validatedSlides
         .slice(1) // Skip title slide
+        .filter(slide => slide.layout === 'avdelare')
         .map(slide => slide.title)
         .filter(title => title.trim());
+
+      // If no avdelare slides found, fall back to all slide titles (except title slide)
+      const finalTocTitles = tocTitles.length > 0 
+        ? tocTitles 
+        : validatedSlides
+            .slice(1) // Skip title slide
+            .map(slide => slide.title)
+            .filter(title => title.trim());
 
       // Create TOC slide with same structure as validatedSlides
       const tocSlide = {
         overline: titleSlideTitle, // Use title slide's title as overline
         title: 'Innehållsförteckning',
-        bodyText: tocTitles.join('\n'),
+        bodyText: finalTocTitles.join('\n'),
         layout: 'quadrant-1-2-large' as const,
         useBullets: true,
       };

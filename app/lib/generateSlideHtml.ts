@@ -81,7 +81,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             height: 1080px;
             top: 0;
             left: 0;
-            background: white;
+            background: white; /* Background color is set inline per slide */
             transform: none;
         }
 
@@ -258,7 +258,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
     return `
       <div class="slide-page">
         <div class="slide-wrapper">
-          <div class="slide-frame">
+          <div class="slide-frame" style="background: ${layoutStyles.backgroundColor || 'white'};">
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
               <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
@@ -347,7 +347,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             height: 1080px;
             top: 0;
             left: 0;
-            background: white;
+            background: white; /* Background color is set inline per slide */
             transform: none;
         }
 

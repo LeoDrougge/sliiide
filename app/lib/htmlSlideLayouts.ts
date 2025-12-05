@@ -14,6 +14,7 @@ export interface LayoutStyles {
   bodyUseBullets?: boolean; // Flag to use custom bullet points
   bodyLineHeight?: number; // Line height for body (if different from default)
   bodyClassName?: string; // CSS class name for body (e.g., 'slide-body-large')
+  backgroundColor?: string; // Background color for the slide (e.g., '#f5f5f5' for light gray)
 }
 
 // Helper function to wrap text (approximate width calculation)
@@ -83,6 +84,15 @@ export function getDefaultLayoutStyles(state: SlideState): LayoutStyles {
     },
     titleLines,
     bodyLines,
+  };
+}
+
+export function getAvdelareLayoutStyles(state: SlideState): LayoutStyles {
+  // Same as title layout but with light gray background
+  const layoutStyles = getDefaultLayoutStyles(state);
+  return {
+    ...layoutStyles,
+    backgroundColor: '#f5f5f5', // Light gray background
   };
 }
 
@@ -285,6 +295,8 @@ export function getLayoutStyles(state: SlideState): LayoutStyles {
   switch (state.layout) {
     case 'title':
       return getDefaultLayoutStyles(state);
+    case 'avdelare':
+      return getAvdelareLayoutStyles(state);
     case 'quadrant-1-2':
       return getQuadrantLayoutStyles(state);
     case 'quadrant-1-2-top':

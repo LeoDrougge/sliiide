@@ -96,7 +96,11 @@ export default function HtmlSlidePreview({
 
   return (
     <div ref={wrapperRef} className="slide-wrapper">
-      <div ref={frameRef} className="slide-frame">
+      <div 
+        ref={frameRef} 
+        className="slide-frame"
+        style={layoutStyles.backgroundColor ? { backgroundColor: layoutStyles.backgroundColor } : undefined}
+      >
         <div className={`grid-overlay ${!showGrid ? 'hidden' : ''}`} />
         <div className="slide-content">
           {/* Antrop logo in bottom right corner */}

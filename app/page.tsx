@@ -46,6 +46,7 @@ export default function Home() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showNotesDialog, setShowNotesDialog] = useState(false);
   const [notes, setNotes] = useState('');
+  const [brief, setBrief] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [slideAmountMode, setSlideAmountMode] = useState<'auto' | 'edit'>('auto');
   const [slideAmountMin, setSlideAmountMin] = useState<number>(5);
@@ -184,6 +185,7 @@ export default function Home() {
     setShowCreateDialog(false);
     setShowNotesDialog(true);
     setNotes('');
+    setBrief('');
     setSlideAmountMode('auto');
     setSlideAmountMin(5);
     setSlideAmountMax(15);
@@ -199,6 +201,7 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           notes,
+          brief,
           slideAmountMode,
           slideAmountMin: slideAmountMode === 'edit' ? slideAmountMin : undefined,
           slideAmountMax: slideAmountMode === 'edit' ? slideAmountMax : undefined,
@@ -226,6 +229,7 @@ export default function Home() {
       setIsUnsaved(false);
       setShowNotesDialog(false);
       setNotes('');
+      setBrief('');
       setShowNameDialog(true);
       setShowHomeScreen(false); // Switch to editor view
     } catch (error: any) {
@@ -566,15 +570,32 @@ export default function Home() {
         {/* Notes Dialog */}
         {showNotesDialog && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-4 border border-gray-200" style={{ width: '600px', maxHeight: '80vh' }}>
+            <div className="bg-white p-4 border border-gray-200 overflow-y-auto" style={{ width: '600px', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
               <h2 className="text-lg mb-2">Generate Slides from Notes</h2>
-              <textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Paste your notes here..."
-                className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none mb-4"
-                style={{ minHeight: '300px' }}
-              />
+              
+              {/* Brief field */}
+              <div className="mb-4">
+                <label className="text-sm mb-1 block">Brief (valfritt)</label>
+                <textarea
+                  value={brief}
+                  onChange={(e) => setBrief(e.target.value)}
+                  placeholder="Beskriv ämne, målgrupp, kontext, etc. som kan hjälpa Claude skapa ett bättre utkast..."
+                  className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none"
+                  style={{ minHeight: '100px' }}
+                />
+              </div>
+
+              {/* Notes field */}
+              <div className="mb-4">
+                <label className="text-sm mb-1 block">Anteckningar</label>
+                <textarea
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Paste your notes here..."
+                  className="w-full p-2 border border-gray-200 outline-none bg-transparent resize-none"
+                  style={{ minHeight: '200px' }}
+                />
+              </div>
               
               {/* Amount of slides section */}
               <div className="mb-4">
@@ -663,6 +684,7 @@ export default function Home() {
                   onClick={() => {
                     setShowNotesDialog(false);
                     setNotes('');
+                    setBrief('');
                   }}
                   className="p-2 border border-gray-200 outline-none bg-transparent cursor-pointer"
                   type="button"
@@ -922,6 +944,7 @@ export default function Home() {
                 onClick={() => {
                   setShowNotesDialog(false);
                   setNotes('');
+                  setBrief('');
                 }}
                 className="p-2 border border-gray-200 outline-none bg-transparent cursor-pointer"
                 type="button"
@@ -1026,6 +1049,15 @@ export default function Home() {
               type="button"
             >
               Title
+            </button>
+            <button
+              onClick={() => setState({ ...state, layout: 'avdelare' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'avdelare' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Avdelare
             </button>
             <button
               onClick={() => setState({ ...state, layout: 'quadrant-1-2' })}

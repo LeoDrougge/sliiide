@@ -1,4 +1,4 @@
-export type LayoutType = 'title' | 'quadrant-1-2' | 'quadrant-1-2-top' | 'centered' | 'quadrant-1-2-large';
+export type LayoutType = 'title' | 'avdelare' | 'quadrant-1-2' | 'quadrant-1-2-top' | 'centered' | 'quadrant-1-2-large';
 
 export interface SlideState {
   overline: string; // Always shows the main title from title slide (slide 0)
