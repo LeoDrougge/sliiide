@@ -5,6 +5,7 @@ export interface SlideState {
   title: string;
   bodyText: string;
   layout: LayoutType;
+  useBullets?: boolean; // Toggle for bullet points on any layout
 }
 
 export interface SavedDeck {

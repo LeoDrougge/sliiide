@@ -157,6 +157,7 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
         title: slide.title || '',
         bodyText: slide.bodyText || '',
         layout: slide.layout || 'title',
+        useBullets: slide.useBullets ?? false,
       };
     });
 

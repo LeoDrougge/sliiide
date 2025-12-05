@@ -142,7 +142,7 @@ export default function HtmlSlidePreview({
               >
                 {slide.title}
               </div>
-              {layoutStyles.bodyUseBullets ? (
+              {(slide.useBullets || layoutStyles.bodyUseBullets) ? (
                 // Editable mode with bullet points using CSS ::marker
                 editable ? (
                   <ul 

@@ -26,6 +26,7 @@ export async function POST(request: NextRequest) {
       title: slide.title || '',
       bodyText: slide.bodyText || '',
       layout: slide.layout || 'title',
+      useBullets: slide.useBullets ?? false,
     }));
 
     // Generate HTML for all slides

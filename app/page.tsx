@@ -27,6 +27,7 @@ const initialState: SlideState = {
   title: 'Roadmap Overview',
   bodyText: dummyText,
   layout: 'title',
+  useBullets: false,
 };
 
 export default function Home() {
@@ -287,6 +288,7 @@ export default function Home() {
         title: '',
         bodyText: '',
         layout: 'title',
+        useBullets: false,
       };
       updated.push(newSlide);
       return updated;
@@ -301,6 +303,7 @@ export default function Home() {
       title: '',
       bodyText: '',
       layout: 'title',
+      useBullets: false,
     });
   };
 
@@ -1033,6 +1036,18 @@ export default function Home() {
               type="button"
             >
               Quadrant Large
+            </button>
+          </div>
+          <div className="mt-4">
+            <div className="text-sm font-normal mb-2">Options</div>
+            <button
+              onClick={() => setState({ ...state, useBullets: !state.useBullets })}
+              className={`w-full p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.useBullets ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Bullet Points
             </button>
           </div>
         </div>

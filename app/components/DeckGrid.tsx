@@ -15,6 +15,7 @@ function DeckGridItem({ deck, onClick }: DeckGridItemProps) {
     title: '',
     bodyText: '',
     layout: 'title',
+    useBullets: false,
   };
 
   // Scale for thumbnail: 300px / 1920px = 0.15625
