@@ -170,12 +170,12 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
         .map(slide => slide.title)
         .filter(title => title.trim());
 
-      // Create TOC slide
-      const tocSlide: SlideState = {
+      // Create TOC slide with same structure as validatedSlides
+      const tocSlide = {
         header: '',
         title: 'Innehållsförteckning',
         bodyText: tocTitles.join('\n'),
-        layout: 'quadrant-1-2-large',
+        layout: 'quadrant-1-2-large' as const,
         useBullets: true,
       };
 
