@@ -256,7 +256,7 @@ ${prompt}`;
 
       // Check if slide 3 is already a TOC slide
       const isTocSlide = slide3?.title === 'Innehållsförteckning' || 
-                         slide3?.layout === 'quadrant-1-2-large';
+                         slide3?.layout === 'toc';
 
       if (!slide3 || !isTocSlide) {
         // Create TOC slide with same structure as validatedSlides
@@ -264,8 +264,8 @@ ${prompt}`;
           overline: titleSlideTitle, // Use title slide's title as overline
           title: 'Innehållsförteckning',
           bodyText: finalTocTitles.join('\n'),
-          layout: 'quadrant-1-2-large' as const,
-          useBullets: true,
+          layout: 'toc' as const,
+          useBullets: false, // TOC uses numbered list, not bullets
         };
 
         // Replace slide 3 with TOC slide, or insert if missing
@@ -277,8 +277,8 @@ ${prompt}`;
       } else {
         // Update existing TOC slide content
         slide3.bodyText = finalTocTitles.join('\n');
-        slide3.layout = 'quadrant-1-2-large';
-        slide3.useBullets = true;
+        slide3.layout = 'toc';
+        slide3.useBullets = false; // TOC uses numbered list, not bullets
       }
     }
 

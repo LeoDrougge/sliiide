@@ -134,12 +134,8 @@ export function getDefaultLayoutStyles(state: SlideState): LayoutStyles {
 }
 
 export function getAvdelareLayoutStyles(state: SlideState): LayoutStyles {
-  // Same as title layout but with light gray background
-  const layoutStyles = getDefaultLayoutStyles(state);
-  return {
-    ...layoutStyles,
-    backgroundColor: '#f5f5f5', // Light gray background
-  };
+  // Same as title layout - background color comes from theme (default: combination 2)
+  return getDefaultLayoutStyles(state);
 }
 
 export function getIntroLayoutStyles(state: SlideState): LayoutStyles {
@@ -357,9 +353,9 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
   // Title in quadrant 3 (bottom-left): same as quadrant-1-2
   const titleX = 72;
   const titleMaxWidth = 800;
-  const titleFontSize = 82; // Updated to 82px
-  const titleLetterSpacing = -4.1; // -5% of 82px
-  const titleLineHeight = 82; // 100% of font size
+  const titleFontSize = TITLE_FONT_SIZE_SMALL;
+  const titleLetterSpacing = TITLE_LETTER_SPACING_SMALL;
+  const titleLineHeight = TITLE_LINE_HEIGHT_SMALL;
   const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
   // Position title bottom at midline (540px from bottom in 1080px container)
   const pageCenterY = 540;
@@ -374,7 +370,7 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
   // Parse body text as bullet points (each line is a bullet point)
   const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
   const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
-  // Position body bottom at midline (540px from bottom in 1080px container)
+  // Position body bottom at midline (540px from bottom in 1080px container) - flows upward
   const bodyBottom = pageCenterY;
 
   return {
@@ -391,7 +387,7 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
     },
     body: {
       position: 'absolute' as const,
-      bottom: `${bodyBottom}px`,
+      bottom: `${bodyBottom}px`, // Body bottom at midline, flows upward
       left: `${bodyX}px`,
       maxWidth: `${bodyMaxWidth}px`,
     },
@@ -400,6 +396,65 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
     bodyUseBullets: true, // Flag to indicate we should use custom bullet points
     bodyLineHeight: bodyLineHeight,
     bodyClassName: 'slide-body-large', // Use body-large style
+    titleLineHeight,
+    titleFontSize,
+    titleLetterSpacing,
+  };
+}
+
+export function getTOCLayoutStyles(state: SlideState): LayoutStyles {
+  const overlineY = 80;
+  const overlineX = 80;
+
+  // Title in quadrant 3 (bottom-left): same as quadrant-1-2
+  const titleX = 72;
+  const titleMaxWidth = 800;
+  const titleFontSize = TITLE_FONT_SIZE_SMALL;
+  const titleLetterSpacing = TITLE_LETTER_SPACING_SMALL;
+  const titleLineHeight = TITLE_LINE_HEIGHT_SMALL;
+  const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
+  // Position title bottom at midline (540px from bottom in 1080px container)
+  const pageCenterY = 540;
+  const titleBottom = pageCenterY;
+
+  // Body in quadrant 4 (bottom-right): using intro text style (52px font, 64px line-height)
+  const bodyX = 960 + 40;
+  const bodyMaxWidth = 800;
+  const bodyFontSize = 52; // intro text style
+  const bodyLetterSpacing = -1.56; // -3% of 52px
+  const bodyLineHeight = 64;
+  // Parse body text as numbered list items (each line is a list item)
+  const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
+  const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
+  
+  // Calculate title height to position body at top of title (flows downward)
+  const titleHeight = titleLines.length * titleLineHeight;
+  // Position body top at title top (title bottom is at pageCenterY, so title top is pageCenterY - titleHeight)
+  const bodyTop = pageCenterY - titleHeight;
+
+  return {
+    overline: {
+      position: 'absolute' as const,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
+    },
+    title: {
+      position: 'absolute' as const,
+      bottom: `${titleBottom}px`,
+      left: `${titleX}px`,
+      maxWidth: `${titleMaxWidth}px`,
+    },
+    body: {
+      position: 'absolute' as const,
+      top: `${bodyTop}px`, // Body top at title top, flows downward
+      left: `${bodyX}px`,
+      maxWidth: `${bodyMaxWidth}px`,
+    },
+    titleLines,
+    bodyLines,
+    bodyUseBullets: false, // Use numbered list, not bullets
+    bodyLineHeight: bodyLineHeight,
+    bodyClassName: 'slide-intro-text', // Use intro text style
     titleLineHeight,
     titleFontSize,
     titleLetterSpacing,
@@ -431,18 +486,32 @@ export function getLayoutStyles(state: SlideState): LayoutStyles {
     case 'quadrant-1-2-large':
       layoutStyles = getQuadrantLargeLayoutStyles(state);
       break;
+    case 'toc':
+      layoutStyles = getTOCLayoutStyles(state);
+      break;
     default:
       layoutStyles = getDefaultLayoutStyles(state);
   }
   
-  // Apply color theme (default to 0 if not specified)
-  const themeIndex = state.colorTheme ?? 0;
+  // Apply color theme with layout-specific defaults
+  let themeIndex: number;
+  if (state.colorTheme !== undefined) {
+    // Use explicitly set color theme
+    themeIndex = state.colorTheme;
+  } else {
+    // Use layout-specific defaults
+    if (state.layout === 'title') {
+      themeIndex = 1; // Kombination 1: mörkblå bg, cyan text
+    } else if (state.layout === 'intro' || state.layout === 'avdelare') {
+      themeIndex = 2; // Kombination 2: cyan bg, mörkblå text
+    } else {
+      themeIndex = 0; // Default: light-blue bg, dark-blue text
+    }
+  }
   const theme = COLOR_THEMES[themeIndex] || COLOR_THEMES[0];
   
-  // Override backgroundColor unless it's explicitly set (like for avdelare)
-  if (state.layout !== 'avdelare') {
-    layoutStyles.backgroundColor = theme.backgroundColor;
-  }
+  // Apply theme background and text colors to all layouts
+  layoutStyles.backgroundColor = theme.backgroundColor;
   layoutStyles.textColor = theme.textColor;
   
   return layoutStyles;

@@ -1042,11 +1042,36 @@ label {
   transform: translateY(-50%);
 }
 
+/* Numbered list styles for TOC */
+.slide-numbered-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+  counter-reset: toc-counter;
+}
+
+.slide-numbered-list li {
+  position: relative;
+  padding-left: 60px; /* Space for number (e.g., "10. " = ~40px + 20px margin) */
+  margin-bottom: 0;
+  line-height: inherit;
+  counter-increment: toc-counter;
+}
+
+.slide-numbered-list li::before {
+  content: counter(toc-counter) '.';
+  position: absolute;
+  left: 0;
+  top: 0;
+  line-height: inherit;
+}
+
 /* Editable styles */
 .slide-title[contenteditable],
 .slide-body[contenteditable],
 .slide-body-large[contenteditable],
-.slide-bullet-list[contenteditable] {
+.slide-bullet-list[contenteditable],
+.slide-numbered-list[contenteditable] {
   cursor: text;
   outline: none;
   white-space: pre-wrap; /* Preserve line breaks and wrap text */
@@ -1057,7 +1082,8 @@ label {
 .slide-body[contenteditable]:focus,
 .slide-body-large[contenteditable]:focus,
 .slide-intro-text[contenteditable]:focus,
-.slide-bullet-list[contenteditable]:focus {
+.slide-bullet-list[contenteditable]:focus,
+.slide-numbered-list[contenteditable]:focus {
   outline: 2px solid rgba(0, 0, 255, 0.3);
   outline-offset: 2px;
 }

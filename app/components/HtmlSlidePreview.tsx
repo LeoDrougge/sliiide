@@ -25,7 +25,7 @@ export default function HtmlSlidePreview({
 }: HtmlSlidePreviewProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
-  const bulletListRef = useRef<HTMLUListElement>(null);
+  const bulletListRef = useRef<HTMLUListElement | HTMLOListElement>(null);
   const isEditingRef = useRef(false);
   const lastSyncedBodyTextRef = useRef<string>(slide.bodyText);
   const lastLayoutRef = useRef<string>(slide.layout);
@@ -67,18 +67,22 @@ export default function HtmlSlidePreview({
 
   // Get layout styles using utility function
   const layoutStyles = getLayoutStyles(slide);
+  
+  // Check if this is a TOC slide (should use numbered list)
+  const isTOCSlide = slide.layout === 'toc';
 
-  // Initialize/sync bullet list content when slide changes from outside (not from user editing)
-  // This includes changes to bodyText OR layout (switching to/from bullet layout)
+  // Initialize/sync list content when slide changes from outside (not from user editing)
+  // This includes changes to bodyText OR layout (switching to/from bullet/numbered layout)
   // OR useBullets toggle (switching bullets on/off)
   useEffect(() => {
     const layoutChanged = slide.layout !== lastLayoutRef.current;
     const bodyTextChanged = slide.bodyText !== lastSyncedBodyTextRef.current;
     const shouldUseBullets = slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets);
+    const shouldUseList = shouldUseBullets || isTOCSlide; // Include TOC slides
     
-    if (editable && shouldUseBullets && bulletListRef.current && !isEditingRef.current) {
-      // Always update when switching to bullets or when bodyText/layout changes
-      // This ensures content is properly initialized when toggling bullets on
+    if (editable && shouldUseList && bulletListRef.current && !isEditingRef.current) {
+      // Always update when switching to list or when bodyText/layout changes
+      // This ensures content is properly initialized when toggling list on
       lastSyncedBodyTextRef.current = slide.bodyText;
       lastLayoutRef.current = slide.layout;
       
@@ -88,11 +92,11 @@ export default function HtmlSlidePreview({
         .map(line => `<li>${line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</li>`)
         .join('');
     } else if (layoutChanged) {
-      // Layout changed but not to bullet layout - update refs
+      // Layout changed but not to list layout - update refs
       lastLayoutRef.current = slide.layout;
       lastSyncedBodyTextRef.current = slide.bodyText;
     }
-  }, [slide.bodyText, slide.layout, slide.useBullets, editable, layoutStyles.bodyUseBullets]);
+  }, [slide.bodyText, slide.layout, slide.useBullets, editable, layoutStyles.bodyUseBullets, isTOCSlide]);
 
   return (
     <div ref={wrapperRef} className="slide-wrapper">
@@ -146,7 +150,53 @@ export default function HtmlSlidePreview({
                   {slide.title}
                 </div>
               )}
-              {(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets)) ? (
+              {isTOCSlide ? (
+                // TOC always uses numbered list
+                editable ? (
+                  <ol 
+                    ref={bulletListRef}
+                    className={`slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}`}
+                    style={{
+                      ...layoutStyles.body,
+                      ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                    }}
+                    contentEditable
+                    suppressContentEditableWarning
+                    onFocus={() => {
+                      isEditingRef.current = true;
+                    }}
+                    onBlur={(e) => {
+                      isEditingRef.current = false;
+                      const items = Array.from(e.currentTarget.querySelectorAll('li'));
+                      const lines = items
+                        .map(li => li.textContent?.trim() || '')
+                        .filter(line => line.length > 0);
+                      const newText = lines.join('\n');
+                      lastSyncedBodyTextRef.current = newText;
+                      lastLayoutRef.current = slide.layout;
+                      onBodyTextChange?.(newText);
+                    }}
+                    onInput={() => {
+                      isEditingRef.current = true;
+                    }}
+                    suppressHydrationWarning
+                  >
+                    {/* Content managed by useEffect and contentEditable */}
+                  </ol>
+                ) : (
+                  <ol 
+                    className={`slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}`}
+                    style={{
+                      ...layoutStyles.body,
+                      ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                    }}
+                  >
+                    {slide.bodyText.split('\n').filter(line => line.trim()).map((line, idx) => (
+                      <li key={idx}>{line}</li>
+                    ))}
+                  </ol>
+                )
+              ) : (slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets)) ? (
                 // Editable mode with bullet points using CSS ::marker
                 editable ? (
                   <ul 
@@ -254,33 +304,49 @@ export default function HtmlSlidePreview({
                   ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
                 }}
               >
-                {layoutStyles.bodyUseBullets && layoutStyles.bodyLines ? (
-                  // Render with custom bullet points
-                  layoutStyles.bodyLines.map((paragraph, pIdx) => {
-                    const lineHeight = layoutStyles.bodyLineHeight || 42;
-                    // Center bullet vertically with first line: (lineHeight / 2) - (bulletHeight / 2)
-                    const bulletMarginTop = (lineHeight / 2) - (14 / 2); // 14px is bullet height
-                    return (
-                      <div key={pIdx} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: `${lineHeight}px` }}>
-                        <img 
-                          src="/images/bullet.svg" 
-                          alt="•" 
-                          style={{ 
-                            width: '14px', 
-                            height: '14px',
-                            marginRight: '16px',
-                            flexShrink: 0,
-                            marginTop: `${bulletMarginTop}px`
-                          }} 
-                        />
-                      <div style={{ flex: 1 }}>
-                        {paragraph.map((line, lIdx) => (
-                          <div key={lIdx} style={{ lineHeight: `${lineHeight}px` }}>{line}</div>
-                        ))}
+                {isTOCSlide ? (
+                  // TOC always uses numbered list
+                  <ol 
+                    className={`slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}`}
+                    style={{
+                      ...layoutStyles.body,
+                      ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                    }}
+                  >
+                    {slide.bodyText.split('\n').filter(line => line.trim()).map((line, idx) => (
+                      <li key={idx}>{line}</li>
+                    ))}
+                  </ol>
+                ) : layoutStyles.bodyUseBullets && layoutStyles.bodyLines ? (
+                  // Render with bullet points
+                  (
+                    // Render with custom bullet points
+                    layoutStyles.bodyLines.map((paragraph, pIdx) => {
+                      const lineHeight = layoutStyles.bodyLineHeight || 42;
+                      // Center bullet vertically with first line: (lineHeight / 2) - (bulletHeight / 2)
+                      const bulletMarginTop = (lineHeight / 2) - (14 / 2); // 14px is bullet height
+                      return (
+                        <div key={pIdx} style={{ display: 'flex', alignItems: 'flex-start', marginBottom: `${lineHeight}px` }}>
+                          <img 
+                            src="/images/bullet.svg" 
+                            alt="•" 
+                            style={{ 
+                              width: '14px', 
+                              height: '14px',
+                              marginRight: '16px',
+                              flexShrink: 0,
+                              marginTop: `${bulletMarginTop}px`
+                            }} 
+                          />
+                        <div style={{ flex: 1 }}>
+                          {paragraph.map((line, lIdx) => (
+                            <div key={lIdx} style={{ lineHeight: `${lineHeight}px` }}>{line}</div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                    );
-                  })
+                      );
+                    })
+                  )
                 ) : layoutStyles.bodyLines ? (
                   layoutStyles.bodyLines.map((paragraph, pIdx) => (
                     <div key={pIdx}>

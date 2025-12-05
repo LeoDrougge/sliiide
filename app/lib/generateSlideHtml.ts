@@ -261,12 +261,24 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
                 </div>
                 ` : ''}
                 ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
-                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
-                      ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
-                        `<li>${escapeHtml(line)}</li>`
-                      ).join('')}
-                    </ul>`
-                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                  ? (slide.layout === 'toc'
+                      ? `<ol class="slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                          ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                            `<li>${escapeHtml(line)}</li>`
+                          ).join('')}
+                        </ol>`
+                      : `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                          ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                            `<li>${escapeHtml(line)}</li>`
+                          ).join('')}
+                        </ul>`)
+                  : slide.layout === 'toc'
+                    ? `<ol class="slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                        ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                          `<li>${escapeHtml(line)}</li>`
+                        ).join('')}
+                      </ol>`
+                    : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                       ${layoutStyles.bodyLines
                         ? layoutStyles.bodyLines.map(paragraph => 
                             `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
@@ -315,16 +327,28 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
               <div class="slide-overline" style="${addTextColor(overlineStyle, layoutStyles.textColor)}">${escapeHtml(slide.overline)}</div>
               <div class="slide-title" style="${addTextColor(titleStyle, layoutStyles.textColor)}">
                 ${layoutStyles.titleLines 
-                  ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
+                  ? layoutStyles.titleLines.map(line => `<div style="line-height: ${layoutStyles.titleLineHeight || 125}px;">${escapeHtml(line)}</div>`).join('')
                   : escapeHtml(slide.title)}
               </div>
                 ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
-                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
-                      ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
-                        `<li>${escapeHtml(line)}</li>`
-                      ).join('')}
-                    </ul>`
-                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                  ? (slide.layout === 'toc'
+                      ? `<ol class="slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                          ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                            `<li>${escapeHtml(line)}</li>`
+                          ).join('')}
+                        </ol>`
+                      : `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                          ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                            `<li>${escapeHtml(line)}</li>`
+                          ).join('')}
+                        </ul>`)
+                  : slide.layout === 'toc'
+                    ? `<ol class="slide-numbered-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                        ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                          `<li>${escapeHtml(line)}</li>`
+                        ).join('')}
+                      </ol>`
+                    : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                     ${layoutStyles.bodyLines
                       ? layoutStyles.bodyLines.map(paragraph => 
                           `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
@@ -517,6 +541,30 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             left: 0;
             top: 50%;
             transform: translateY(-50%);
+        }
+
+        /* Numbered list styles for TOC */
+        .slide-numbered-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+            counter-reset: toc-counter;
+        }
+
+        .slide-numbered-list li {
+            position: relative;
+            padding-left: 60px; /* Space for number (e.g., "10. " = ~40px + 20px margin) */
+            margin-bottom: 0;
+            line-height: inherit;
+            counter-increment: toc-counter;
+        }
+
+        .slide-numbered-list li::before {
+            content: counter(toc-counter) '.';
+            position: absolute;
+            left: 0;
+            top: 0;
+            line-height: inherit;
         }
 
         .slide-logo {
