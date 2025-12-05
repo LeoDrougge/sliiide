@@ -1,7 +1,7 @@
 export type LayoutType = 'title' | 'quadrant-1-2' | 'quadrant-1-2-top' | 'centered' | 'quadrant-1-2-large';
 
 export interface SlideState {
-  header: string;
+  overline: string; // Always shows the main title from title slide (slide 0)
   title: string;
   bodyText: string;
   layout: LayoutType;

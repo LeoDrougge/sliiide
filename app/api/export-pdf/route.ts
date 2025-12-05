@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
     // Validate slides structure
     const validatedSlides: SlideState[] = slides.map((slide: any) => ({
-      header: slide.header || '',
+      overline: slide.overline || '',
       title: slide.title || '',
       bodyText: slide.bodyText || '',
       layout: slide.layout || 'title',

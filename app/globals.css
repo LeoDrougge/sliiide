@@ -114,8 +114,8 @@ label {
   height: 100%;
 }
 
-/* Header - Martian Mono 16px */
-.slide-header {
+/* Overline - Martian Mono 16px - shows title from title slide */
+.slide-overline {
   font-family: 'Martian Mono', monospace;
   font-size: 16px !important;
   letter-spacing: 0 !important;
@@ -183,7 +183,6 @@ label {
 }
 
 /* Editable styles */
-.slide-header[contenteditable],
 .slide-title[contenteditable],
 .slide-body[contenteditable],
 .slide-body-large[contenteditable],
@@ -194,7 +193,6 @@ label {
   word-wrap: break-word;
 }
 
-.slide-header[contenteditable]:focus,
 .slide-title[contenteditable]:focus,
 .slide-body[contenteditable]:focus,
 .slide-body-large[contenteditable]:focus,
@@ -203,7 +201,6 @@ label {
   outline-offset: 2px;
 }
 
-.slide-header[contenteditable]:empty::before,
 .slide-title[contenteditable]:empty::before,
 .slide-body[contenteditable]:empty::before,
 .slide-body-large[contenteditable]:empty::before {

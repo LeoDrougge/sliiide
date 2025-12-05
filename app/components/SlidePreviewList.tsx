@@ -11,6 +11,7 @@ interface SlidePreviewListProps {
   onAddSlide?: () => void;
   onReorderSlides?: (fromIndex: number, toIndex: number) => void;
   showGrid?: boolean;
+  titleSlideTitle?: string; // Title from slide 0 to use as overline
 }
 
 function SlidePreviewItem({ 
@@ -22,7 +23,8 @@ function SlidePreviewItem({
   onDragOver,
   onDrop,
   isDragging,
-  showGrid
+  showGrid,
+  titleSlideTitle
 }: { 
   slide: SlideState; 
   index: number; 
@@ -33,6 +35,7 @@ function SlidePreviewItem({
   onDrop: (e: React.DragEvent) => void;
   isDragging: boolean;
   showGrid?: boolean;
+  titleSlideTitle?: string;
 }) {
   const thumbnailScale = 200 / 1920;
 
@@ -48,11 +51,12 @@ function SlidePreviewItem({
       } ${isDragging ? 'opacity-50' : ''}`}
       style={{ width: '200px', height: '112.5px', position: 'relative' }}
     >
-      <HtmlSlidePreview 
-        slide={slide} 
-        showGrid={showGrid} 
-        scale={thumbnailScale}
-      />
+            <HtmlSlidePreview 
+              slide={slide} 
+              showGrid={showGrid} 
+              scale={thumbnailScale}
+              titleSlideTitle={titleSlideTitle}
+            />
     </div>
   );
 }
@@ -65,7 +69,8 @@ export default function SlidePreviewList({
   onSlideClick,
   onAddSlide,
   onReorderSlides,
-  showGrid = false 
+  showGrid = false,
+  titleSlideTitle
 }: SlidePreviewListProps) {
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);

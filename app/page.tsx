@@ -23,7 +23,7 @@ Ut enim ad minim veniam, quis nostrud exercitation ullamco.
 Duis aute irure dolor in reprehenderit in voluptate velit esse cillum.`;
 
 const initialState: SlideState = {
-  header: 'Q4 Update — Draft',
+  overline: '',
   title: 'Roadmap Overview',
   bodyText: dummyText,
   layout: 'title',
@@ -66,11 +66,19 @@ export default function Home() {
     isInitialMount.current = false;
   }, []);
 
+  // Track if we're updating overline to prevent loops
+  const isUpdatingOverline = useRef(false);
+
   // Update state when selected slide changes
   useEffect(() => {
     if (isChangingSlide.current) {
       isChangingSlide.current = false;
       return; // Skip if we're in the middle of changing slides
+    }
+    if (isUpdatingOverline.current) {
+      // Don't update state when we're just updating overline on all slides
+      isUpdatingOverline.current = false;
+      return;
     }
     const slide = slides[selectedSlideIndex];
     if (slide) {
@@ -82,7 +90,13 @@ export default function Home() {
   useEffect(() => {
     if (isInitialMount.current) return;
     if (isChangingSlide.current) return; // Don't update slides array when switching slides
+    if (isUpdatingOverline.current) {
+      // Don't update if we're in the middle of updating overline (handled by handleTitleChange)
+      isUpdatingOverline.current = false;
+      return;
+    }
     
+    // Update the current slide in the slides array
     setSlides(prev => {
       const updated = [...prev];
       updated[selectedSlideIndex] = state;
@@ -123,12 +137,23 @@ export default function Home() {
 
   // No need for PDF generation anymore - preview is HTML/CSS based
 
-  const handleHeaderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, header: e.target.value });
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, title: e.target.value });
+  const handleTitleChange = (text: string) => {
+    const newState = { ...state, title: text };
+    setState(newState);
+    
+    // If this is the title slide (slide 0), update overline on all slides
+    if (selectedSlideIndex === 0) {
+      isUpdatingOverline.current = true; // Mark that we're updating overline to prevent loop
+      setSlides(prev => {
+        const updated = prev.map((slide, idx) => ({
+          ...slide,
+          overline: text, // Update overline on all slides to match title slide's title
+        }));
+        // Also update the current slide with new title
+        updated[selectedSlideIndex] = newState;
+        return updated;
+      });
+    }
   };
 
   const handleBodyTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -284,7 +309,7 @@ export default function Home() {
       updated[selectedSlideIndex] = state;
       // Add new slide at the end
       const newSlide: SlideState = {
-        header: '',
+        overline: slides[0]?.title || '', // Use title slide's title as overline
         title: '',
         bodyText: '',
         layout: 'title',
@@ -299,7 +324,7 @@ export default function Home() {
     const newIndex = slides.length;
     setSelectedSlideIndex(newIndex);
     setState({
-      header: '',
+      overline: slides[0]?.title || '', // Use title slide's title as overline
       title: '',
       bodyText: '',
       layout: 'title',
@@ -969,6 +994,7 @@ export default function Home() {
                 onAddSlide={handleAddSlide}
                 onReorderSlides={handleReorderSlides}
                 showGrid={showGrid}
+                titleSlideTitle={slides[0]?.title || ''}
               />
             ) : (
               <div className="text-sm text-gray-400">No slides</div>
@@ -982,8 +1008,8 @@ export default function Home() {
             slide={state} 
             showGrid={showGrid}
             editable={true}
-            onHeaderChange={(text) => setState({ ...state, header: text })}
-            onTitleChange={(text) => setState({ ...state, title: text })}
+            titleSlideTitle={slides[0]?.title || ''}
+            onTitleChange={handleTitleChange}
             onBodyTextChange={(text) => setState({ ...state, bodyText: text })}
           />
         </div>

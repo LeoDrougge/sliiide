@@ -11,7 +11,7 @@ interface DeckGridItemProps {
 function DeckGridItem({ deck, onClick }: DeckGridItemProps) {
   // Get first slide for thumbnail
   const firstSlide: SlideState = deck.slides?.[0] || deck.state || {
-    header: '',
+    overline: '',
     title: '',
     bodyText: '',
     layout: 'title',

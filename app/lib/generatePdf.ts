@@ -56,7 +56,7 @@ async function generateDefaultLayout(
   // Using Martian Mono, 16px
   // Positioned on second grid row from top
   const headerY = snapToGrid(1080 - 80); // 2 grid units from top (2 * 40px = 80px)
-  page.drawText(state.header, {
+  page.drawText(state.overline, {
     x: snapToGrid(80), // 2 grid units from left
     y: headerY,
     size: 16,
@@ -199,7 +199,7 @@ async function generateQuadrantLayout(
 ): Promise<void> {
   // Header - top area, aligned to grid (same as default)
   const headerY = snapToGrid(1080 - 80);
-  page.drawText(state.header, {
+  page.drawText(state.overline, {
     x: snapToGrid(80),
     y: headerY,
     size: 16,
@@ -328,7 +328,7 @@ async function generateQuadrantTopLayout(
 ): Promise<void> {
   // Header - top area, aligned to grid (same as default)
   const headerY = snapToGrid(1080 - 80);
-  page.drawText(state.header, {
+  page.drawText(state.overline, {
     x: snapToGrid(80),
     y: headerY,
     size: 16,
@@ -457,7 +457,7 @@ async function generateCenteredLayout(
 ): Promise<void> {
   // Header - top area, aligned to grid (same as default)
   const headerY = snapToGrid(1080 - 80);
-  page.drawText(state.header, {
+  page.drawText(state.overline, {
     x: snapToGrid(80),
     y: headerY,
     size: 16,
@@ -630,7 +630,7 @@ export async function generatePdf(state: SlideState): Promise<Uint8Array> {
   // 16:9 aspect ratio: 1920×1080 points (pdf-lib uses points, 1 point = 1/72 inch)
   const page = pdfDoc.addPage([1920, 1080]);
   
-  // Load fonts: Martian Mono for header, TT Norms for title and body
+  // Load fonts: Martian Mono for overline, TT Norms for title and body
   let martianMono: any, ttNorms: any, ttNormsBold: any;
   try {
     const martianMonoUrl = '/fonts/MartianMono-Regular.ttf';

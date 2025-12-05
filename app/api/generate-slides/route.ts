@@ -42,19 +42,19 @@ export async function POST(request: NextRequest) {
     }
 
     const prompt = `Du ska dela upp dessa anteckningar i slides för en presentation. Varje slide ska ha:
-- header: En kort header (max 30 tecken)
-- title: En rubrik för sliden (max 60 tecken)
+- overline: Denna kommer automatiskt att sättas till samma som title-sidan (första sliden). Du behöver inte bekymra dig om denna - sätt den alltid till tom sträng ("").
+- title: Huvudrubriken för sliden (max 60 tecken) - Detta är huvudbudskapet och den viktiga informationen.
 - bodyText: Huvudinnehållet (2-4 rader, separera med \\n för radbrytningar)
 ${slideCountInstruction}
 ${summaryInstruction}
 
 VIKTIGT: 
 - Första sliden ska vara en titelsida med temat för presentationen
-  - header: Lämna tom eller en kort beskrivning
+  - overline: Sätt till tom sträng ("")
   - title: Huvudtemat/titeln för presentationen
   - bodyText: Lämna tom eller en kort beskrivning av vad presentationen handlar om
-- Övriga slides ska ha tydligt innehåll
-- Använd faktiskt innehåll från anteckningarna, hitta inte på saker
+- Övriga slides: Använd faktiskt innehåll från anteckningarna, hitta inte på saker
+- Sätt alltid overline till tom sträng (""). Den kommer automatiskt att uppdateras i systemet.
 
 Anteckningar:
 ${notes}
@@ -62,13 +62,13 @@ ${notes}
 Returnera JSON-array med SlideState objekt i formatet:
 [
   {
-    "header": "...",
+    "overline": "",
     "title": "...",
     "bodyText": "...",
     "layout": "title"
   },
   {
-    "header": "...",
+    "overline": "",
     "title": "...",
     "bodyText": "...",
     "layout": "title"
@@ -76,7 +76,7 @@ Returnera JSON-array med SlideState objekt i formatet:
   ...
 ]
 
-Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterligare text.`;
+Använd "title" som layout för alla slides. Sätt overline till tom sträng (""). Returnera ENDAST JSON, ingen ytterligare text.`;
 
     // Try Claude 4.5 Sonnet first, then fallback to 3.5
     let message;
@@ -153,12 +153,18 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
         throw new Error(`Invalid slide at index ${index}`);
       }
       return {
-        header: slide.header || '',
+        overline: slide.overline || '',
         title: slide.title || '',
         bodyText: slide.bodyText || '',
         layout: slide.layout || 'title',
         useBullets: slide.useBullets ?? false,
       };
+    });
+
+    // Set overline on all slides to match title slide's title
+    const titleSlideTitle = validatedSlides[0]?.title || '';
+    validatedSlides.forEach((slide) => {
+      slide.overline = titleSlideTitle;
     });
 
     // If more than 5 slides, insert Table of Contents as slide 2 (index 1)
@@ -172,7 +178,7 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
 
       // Create TOC slide with same structure as validatedSlides
       const tocSlide = {
-        header: '',
+        overline: titleSlideTitle, // Use title slide's title as overline
         title: 'Innehållsförteckning',
         bodyText: tocTitles.join('\n'),
         layout: 'quadrant-1-2-large' as const,

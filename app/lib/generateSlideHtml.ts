@@ -24,7 +24,7 @@ function styleToString(styles: Record<string, string | number | undefined>): str
 export function generateSlideHtml(slide: SlideState, showGrid: boolean = false): string {
   const layoutStyles = getLayoutStyles(slide);
   
-  const headerStyle = styleToString(layoutStyles.header);
+  const overlineStyle = styleToString(layoutStyles.overline);
   const titleStyle = styleToString(layoutStyles.title);
   const bodyStyle = styleToString(layoutStyles.body);
 
@@ -133,7 +133,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             height: 100%;
         }
 
-        .slide-header {
+        .slide-overline {
             font-family: 'Martian Mono', monospace;
             font-size: 16px;
             color: #000;
@@ -216,7 +216,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
                 <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
-                <div class="slide-header" style="${headerStyle}">${escapeHtml(slide.header)}</div>
+                <div class="slide-overline" style="${overlineStyle}">${escapeHtml(slide.overline)}</div>
                 <div class="slide-title" style="${titleStyle}">
                     ${layoutStyles.titleLines 
                       ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
@@ -249,7 +249,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
   const slidesHtml = slides.map(slide => {
     const layoutStyles = getLayoutStyles(slide);
 
-    const headerStyle = styleToString(layoutStyles.header);
+    const overlineStyle = styleToString(layoutStyles.overline);
     const titleStyle = styleToString(layoutStyles.title);
     const bodyStyle = styleToString(layoutStyles.body);
 
@@ -262,7 +262,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
               <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
-              <div class="slide-header" style="${headerStyle}">${escapeHtml(slide.header)}</div>
+              <div class="slide-overline" style="${overlineStyle}">${escapeHtml(slide.overline)}</div>
               <div class="slide-title" style="${titleStyle}">
                 ${layoutStyles.titleLines 
                   ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
@@ -399,7 +399,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             height: 100%;
         }
 
-        .slide-header {
+        .slide-overline {
             font-family: 'Martian Mono', monospace;
             font-size: 16px;
             color: #000;

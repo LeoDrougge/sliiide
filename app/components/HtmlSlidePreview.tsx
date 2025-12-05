@@ -9,7 +9,7 @@ interface HtmlSlidePreviewProps {
   showGrid?: boolean;
   scale?: number; // Optional fixed scale for thumbnails
   editable?: boolean; // Enable direct editing
-  onHeaderChange?: (text: string) => void;
+  titleSlideTitle?: string; // Title from slide 0 to use as overline
   onTitleChange?: (text: string) => void;
   onBodyTextChange?: (text: string) => void;
 }
@@ -19,7 +19,7 @@ export default function HtmlSlidePreview({
   showGrid = false,
   scale,
   editable = false,
-  onHeaderChange,
+  titleSlideTitle,
   onTitleChange,
   onBodyTextChange
 }: HtmlSlidePreviewProps) {
@@ -107,25 +107,12 @@ export default function HtmlSlidePreview({
           />
           {editable ? (
             <>
-              {/* Editable mode - show raw text, browser handles wrapping */}
+              {/* Overline - shows title from title slide (slide 0) */}
               <div 
-                className="slide-header" 
-                style={layoutStyles.header}
-                contentEditable
-                suppressContentEditableWarning
-                data-placeholder="Header"
-                onBlur={(e) => {
-                  const text = e.currentTarget.textContent || '';
-                  onHeaderChange?.(text);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.currentTarget.blur();
-                  }
-                }}
+                className="slide-overline" 
+                style={layoutStyles.overline}
               >
-                {slide.header}
+                {titleSlideTitle || slide.overline}
               </div>
               <div 
                 className="slide-title" 
@@ -207,8 +194,8 @@ export default function HtmlSlidePreview({
           ) : (
             <>
               {/* Read-only mode - use wrapped lines for display */}
-              <div className="slide-header" style={layoutStyles.header}>
-                {slide.header}
+              <div className="slide-overline" style={layoutStyles.overline}>
+                {titleSlideTitle || slide.overline}
               </div>
               <div className="slide-title" style={layoutStyles.title}>
                 {layoutStyles.titleLines ? (

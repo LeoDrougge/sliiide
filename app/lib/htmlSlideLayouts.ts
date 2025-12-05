@@ -6,7 +6,7 @@ const ESTIMATED_CHAR_WIDTH_TITLE = 70; // Approx width of 'M' at 125px font size
 const ESTIMATED_CHAR_WIDTH_BODY = 13; // Approx width of 'M' at 22px font size
 
 export interface LayoutStyles {
-  header: Record<string, string | number>;
+  overline: Record<string, string | number>;
   title: Record<string, string | number>;
   body: Record<string, string | number>;
   titleLines?: string[]; // Pre-wrapped title lines
@@ -45,8 +45,8 @@ function wrapText(text: string, maxWidth: number, fontSize: number, letterSpacin
 }
 
 export function getDefaultLayoutStyles(state: SlideState): LayoutStyles {
-  const headerY = 80; // 2 grid rows from top
-  const headerX = 80;
+  const overlineY = 80; // 2 grid rows from top
+  const overlineX = 80;
   
   const titleY = 320; // ~8 grid units from top
   const titleX = 72; // 80px - 8px nudge
@@ -64,10 +64,10 @@ export function getDefaultLayoutStyles(state: SlideState): LayoutStyles {
   const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
 
   return {
-    header: {
+    overline: {
       position: 'absolute' as const,
-      top: `${headerY}px`,
-      left: `${headerX}px`,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
     },
     title: {
       position: 'absolute' as const,
@@ -87,8 +87,8 @@ export function getDefaultLayoutStyles(state: SlideState): LayoutStyles {
 }
 
 export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
-  const headerY = 80;
-  const headerX = 80;
+  const overlineY = 80;
+  const overlineX = 80;
 
   // Title in quadrant 3 (bottom-left): x=80, bottom of quadrant is at y=540
   // Quadrant 3: x=80-960, y=80-540 (bottom-left)
@@ -109,10 +109,10 @@ export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
   const bodyBottom = 460; // Distance from bottom
 
   return {
-    header: {
+    overline: {
       position: 'absolute' as const,
-      top: `${headerY}px`,
-      left: `${headerX}px`,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
     },
     title: {
       position: 'absolute' as const,
@@ -132,8 +132,8 @@ export function getQuadrantLayoutStyles(state: SlideState): LayoutStyles {
 }
 
 export function getQuadrantTopLayoutStyles(state: SlideState): LayoutStyles {
-  const headerY = 80;
-  const headerX = 80;
+  const overlineY = 80;
+  const overlineX = 80;
 
   // Title in quadrant 1 (top-left): x=80-960, y=540-1080
   const titleX = 72;
@@ -153,10 +153,10 @@ export function getQuadrantTopLayoutStyles(state: SlideState): LayoutStyles {
   const bodyBottom = 100; // Distance from bottom
 
   return {
-    header: {
+    overline: {
       position: 'absolute' as const,
-      top: `${headerY}px`,
-      left: `${headerX}px`,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
     },
     title: {
       position: 'absolute' as const,
@@ -176,8 +176,8 @@ export function getQuadrantTopLayoutStyles(state: SlideState): LayoutStyles {
 }
 
 export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
-  const headerY = 80;
-  const headerX = 80;
+  const overlineY = 80;
+  const overlineX = 80;
 
   const titleMaxWidth = 960;
   const titleFontSize = 125;
@@ -204,10 +204,10 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   const bodyTopFromTop = pageCenterY + gapHeight;
 
   return {
-    header: {
+    overline: {
       position: 'absolute' as const,
-      top: `${headerY}px`,
-      left: `${headerX}px`,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
     },
     title: {
       position: 'absolute' as const,
@@ -233,8 +233,8 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
 }
 
 export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
-  const headerY = 80;
-  const headerX = 80;
+  const overlineY = 80;
+  const overlineX = 80;
 
   // Title in quadrant 3 (bottom-left): same as quadrant-1-2
   const titleX = 72;
@@ -256,10 +256,10 @@ export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
   const bodyBottom = 460;
 
   return {
-    header: {
+    overline: {
       position: 'absolute' as const,
-      top: `${headerY}px`,
-      left: `${headerX}px`,
+      top: `${overlineY}px`,
+      left: `${overlineX}px`,
     },
     title: {
       position: 'absolute' as const,

@@ -78,7 +78,7 @@ export function importDeckFromJSON(json: string): SavedDeck | null {
     if (deck.slides && Array.isArray(deck.slides)) {
       return deck;
     }
-    if (deck.state && deck.state.header !== undefined && deck.state.title !== undefined) {
+    if (deck.state && (deck.state.overline !== undefined || (deck.state as any).header !== undefined) && deck.state.title !== undefined) {
       // Migrate old format
       return {
         ...deck,
