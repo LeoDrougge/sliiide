@@ -11,6 +11,9 @@ export interface LayoutStyles {
   body: Record<string, string | number>;
   titleLines?: string[]; // Pre-wrapped title lines
   bodyLines?: string[][]; // Pre-wrapped body lines per paragraph
+  bodyUseBullets?: boolean; // Flag to use custom bullet points
+  bodyLineHeight?: number; // Line height for body (if different from default)
+  bodyClassName?: string; // CSS class name for body (e.g., 'slide-body-large')
 }
 
 // Helper function to wrap text (approximate width calculation)
@@ -227,6 +230,55 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   };
 }
 
+export function getQuadrantLargeLayoutStyles(state: SlideState): LayoutStyles {
+  const headerY = 80;
+  const headerX = 80;
+
+  // Title in quadrant 3 (bottom-left): same as quadrant-1-2
+  const titleX = 72;
+  const titleMaxWidth = 800;
+  const titleFontSize = 125;
+  const titleLetterSpacing = -5;
+  const titleLines = wrapText(state.title, titleMaxWidth, titleFontSize, titleLetterSpacing);
+  const titleBottom = 460;
+
+  // Body in quadrant 4 (bottom-right): using body-large style (30px font, 42px line-height)
+  const bodyX = 960 + 40;
+  const bodyMaxWidth = 800;
+  const bodyFontSize = 30; // body-large
+  const bodyLetterSpacing = -0.6; // -2% of 30px
+  const bodyLineHeight = 42;
+  // Parse body text as bullet points (each line is a bullet point)
+  const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
+  const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
+  const bodyBottom = 460;
+
+  return {
+    header: {
+      position: 'absolute' as const,
+      top: `${headerY}px`,
+      left: `${headerX}px`,
+    },
+    title: {
+      position: 'absolute' as const,
+      bottom: `${titleBottom}px`,
+      left: `${titleX}px`,
+      maxWidth: `${titleMaxWidth}px`,
+    },
+    body: {
+      position: 'absolute' as const,
+      bottom: `${bodyBottom}px`,
+      left: `${bodyX}px`,
+      maxWidth: `${bodyMaxWidth}px`,
+    },
+    titleLines,
+    bodyLines,
+    bodyUseBullets: true, // Flag to indicate we should use custom bullet points
+    bodyLineHeight: bodyLineHeight,
+    bodyClassName: 'slide-body-large', // Use body-large style
+  };
+}
+
 export function getLayoutStyles(state: SlideState): LayoutStyles {
   switch (state.layout) {
     case 'quadrant-1-2':
@@ -235,6 +287,8 @@ export function getLayoutStyles(state: SlideState): LayoutStyles {
       return getQuadrantTopLayoutStyles(state);
     case 'centered':
       return getCenteredLayoutStyles(state);
+    case 'quadrant-1-2-large':
+      return getQuadrantLargeLayoutStyles(state);
     default:
       return getDefaultLayoutStyles(state);
   }

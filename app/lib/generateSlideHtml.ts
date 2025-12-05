@@ -165,6 +165,35 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             color: #000;
         }
 
+        /* Bullet list styles */
+        .slide-bullet-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .slide-bullet-list li {
+            position: relative;
+            padding-left: 30px; /* Space for bullet (14px bullet + 16px margin) */
+            margin-bottom: 0;
+            line-height: inherit;
+        }
+
+        .slide-bullet-list li::before {
+            content: '';
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            margin-right: 16px;
+            background-image: url('/images/bullet.svg');
+            background-size: 14px 14px;
+            background-repeat: no-repeat;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
         .slide-logo {
             position: absolute;
             bottom: 40px;
@@ -193,13 +222,20 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
                       ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
                       : escapeHtml(slide.title)}
                 </div>
-                <div class="slide-body" style="${bodyStyle}">
-                    ${layoutStyles.bodyLines
-                      ? layoutStyles.bodyLines.map(paragraph => 
-                          `<div>${paragraph.map(line => `<div style="line-height: 27px;">${escapeHtml(line)}</div>`).join('')}</div>`
-                        ).join('')
-                      : slide.bodyText.split('\n').map(line => `<div>${escapeHtml(line)}</div>`).join('')}
-                </div>
+                ${layoutStyles.bodyUseBullets
+                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                      ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                        `<li>${escapeHtml(line)}</li>`
+                      ).join('')}
+                    </ul>`
+                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                      ${layoutStyles.bodyLines
+                        ? layoutStyles.bodyLines.map(paragraph => 
+                            `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
+                          ).join('')
+                        : slide.bodyText.split('\n').map(line => `<div>${escapeHtml(line)}</div>`).join('')}
+                    </div>`
+                }
             </div>
         </div>
     </div>
@@ -232,13 +268,20 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
                   ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
                   : escapeHtml(slide.title)}
               </div>
-              <div class="slide-body" style="${bodyStyle}">
-                ${layoutStyles.bodyLines
-                  ? layoutStyles.bodyLines.map(paragraph => 
-                      `<div>${paragraph.map(line => `<div style="line-height: 27px;">${escapeHtml(line)}</div>`).join('')}</div>`
-                    ).join('')
-                  : slide.bodyText.split('\n').map(line => `<div>${escapeHtml(line)}</div>`).join('')}
-              </div>
+              ${layoutStyles.bodyUseBullets
+                ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                    ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                      `<li>${escapeHtml(line)}</li>`
+                    ).join('')}
+                  </ul>`
+                : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                    ${layoutStyles.bodyLines
+                      ? layoutStyles.bodyLines.map(paragraph => 
+                          `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
+                        ).join('')
+                      : slide.bodyText.split('\n').map(line => `<div>${escapeHtml(line)}</div>`).join('')}
+                  </div>`
+              }
             </div>
           </div>
         </div>
@@ -386,6 +429,35 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             line-height: 42px;
             letter-spacing: -0.6px; /* -2% of 30px */
             color: #000;
+        }
+
+        /* Bullet list styles */
+        .slide-bullet-list {
+            list-style: none;
+            padding-left: 0;
+            margin: 0;
+        }
+
+        .slide-bullet-list li {
+            position: relative;
+            padding-left: 30px; /* Space for bullet (14px bullet + 16px margin) */
+            margin-bottom: 0;
+            line-height: inherit;
+        }
+
+        .slide-bullet-list li::before {
+            content: '';
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            margin-right: 16px;
+            background-image: url('/images/bullet.svg');
+            background-size: 14px 14px;
+            background-repeat: no-repeat;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
         }
 
         .slide-logo {

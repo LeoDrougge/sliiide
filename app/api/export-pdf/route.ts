@@ -91,6 +91,28 @@ export async function POST(request: NextRequest) {
 
     const logoDataUrl = loadLogoAsBase64();
     
+    // Load bullet as base64 for embedding
+    const loadBulletAsBase64 = (): string => {
+      try {
+        const bulletPath = path.join(publicImagesPath, 'bullet.svg');
+        console.log('Loading bullet from:', bulletPath);
+        if (!fs.existsSync(bulletPath)) {
+          console.error('Bullet file does not exist:', bulletPath);
+          return '';
+        }
+        const bulletContent = fs.readFileSync(bulletPath, 'utf-8');
+        const bulletBase64 = Buffer.from(bulletContent, 'utf-8').toString('base64');
+        const dataUrl = `data:image/svg+xml;base64,${bulletBase64}`;
+        console.log('Bullet loaded successfully');
+        return dataUrl;
+      } catch (error) {
+        console.error('Error loading bullet:', error);
+        return '';
+      }
+    };
+
+    const bulletDataUrl = loadBulletAsBase64();
+    
     // Replace logo URL in HTML with base64 data URL
     // Need to escape quotes properly in the replacement
     if (logoDataUrl) {
@@ -105,6 +127,26 @@ export async function POST(request: NextRequest) {
       console.log(`Logo replacement: ${beforeReplace ? 'found' : 'not found'} before, ${afterReplace ? 'replaced' : 'not replaced'} after`);
     } else {
       console.warn('Logo data URL is empty, logo will not be included in PDF');
+    }
+
+    // Replace bullet URL in HTML with base64 data URL
+    // Replace both img src attributes AND CSS background-image URLs
+    if (bulletDataUrl) {
+      const escapedBulletUrl = bulletDataUrl.replace(/"/g, '&quot;');
+      // Replace img src attributes
+      html = html.replace(
+        /src="\/images\/bullet\.svg"/g,
+        `src="${escapedBulletUrl}"`
+      );
+      // Replace CSS background-image URLs (need to escape quotes differently for CSS)
+      const cssEscapedBulletUrl = bulletDataUrl.replace(/'/g, "\\'");
+      html = html.replace(
+        /background-image:\s*url\(['"]\/images\/bullet\.svg['"]\)/g,
+        `background-image: url('${cssEscapedBulletUrl}')`
+      );
+      console.log('Bullet replacement completed (both src and background-image)');
+    } else {
+      console.warn('Bullet data URL is empty, bullet points will not be included in PDF');
     }
 
     // Launch Puppeteer - same config as working experiment

@@ -1025,6 +1025,15 @@ export default function Home() {
             >
               Centered Layout
             </button>
+            <button
+              onClick={() => setState({ ...state, layout: 'quadrant-1-2-large' })}
+              className={`p-2 border border-gray-200 outline-none bg-transparent cursor-pointer text-left ${
+                state.layout === 'quadrant-1-2-large' ? 'bg-gray-100' : ''
+              }`}
+              type="button"
+            >
+              Quadrant Large
+            </button>
           </div>
         </div>
       </div>
