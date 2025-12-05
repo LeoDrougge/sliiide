@@ -141,10 +141,21 @@ label {
   color: #000;
 }
 
+/* Body text large - TT Norms 30px, line-height 42px, letter-spacing -2% */
+.slide-body-large {
+  font-family: 'TT Norms', sans-serif;
+  font-weight: 400;
+  font-size: 30px !important;
+  line-height: 42px;
+  letter-spacing: -0.6px !important; /* -2% of 30px */
+  color: #000;
+}
+
 /* Editable styles */
 .slide-header[contenteditable],
 .slide-title[contenteditable],
-.slide-body[contenteditable] {
+.slide-body[contenteditable],
+.slide-body-large[contenteditable] {
   cursor: text;
   outline: none;
   white-space: pre-wrap; /* Preserve line breaks and wrap text */
@@ -153,14 +164,16 @@ label {
 
 .slide-header[contenteditable]:focus,
 .slide-title[contenteditable]:focus,
-.slide-body[contenteditable]:focus {
+.slide-body[contenteditable]:focus,
+.slide-body-large[contenteditable]:focus {
   outline: 2px solid rgba(0, 0, 255, 0.3);
   outline-offset: 2px;
 }
 
 .slide-header[contenteditable]:empty::before,
 .slide-title[contenteditable]:empty::before,
-.slide-body[contenteditable]:empty::before {
+.slide-body[contenteditable]:empty::before,
+.slide-body-large[contenteditable]:empty::before {
   content: attr(data-placeholder);
   color: rgba(0, 0, 0, 0.3);
   pointer-events: none;

@@ -156,6 +156,15 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             color: #000;
         }
 
+        .slide-body-large {
+            font-family: 'TT Norms', sans-serif;
+            font-weight: 400;
+            font-size: 30px;
+            line-height: 42px;
+            letter-spacing: -0.6px; /* -2% of 30px */
+            color: #000;
+        }
+
         .slide-logo {
             position: absolute;
             bottom: 40px;
@@ -367,6 +376,15 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             font-size: 22px;
             line-height: 27px;
             letter-spacing: -0.66px;
+            color: #000;
+        }
+
+        .slide-body-large {
+            font-family: 'TT Norms', sans-serif;
+            font-weight: 400;
+            font-size: 30px;
+            line-height: 42px;
+            letter-spacing: -0.6px; /* -2% of 30px */
             color: #000;
         }
 
