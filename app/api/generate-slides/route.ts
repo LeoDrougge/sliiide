@@ -161,6 +161,28 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
       };
     });
 
+    // If more than 5 slides, insert Table of Contents as slide 3 (index 2)
+    if (validatedSlides.length > 5) {
+      // Get titles from slides for TOC
+      // Skip title slide (index 0) and next slide (index 1), then include all others
+      const tocTitles = validatedSlides
+        .slice(1) // Skip title slide
+        .map(slide => slide.title)
+        .filter(title => title.trim());
+
+      // Create TOC slide
+      const tocSlide: SlideState = {
+        header: '',
+        title: 'Innehållsförteckning',
+        bodyText: tocTitles.join('\n'),
+        layout: 'quadrant-1-2-large',
+        useBullets: true,
+      };
+
+      // Insert TOC as slide 3 (index 2)
+      validatedSlides.splice(2, 0, tocSlide);
+    }
+
     return NextResponse.json({ slides: validatedSlides });
   } catch (error: any) {
     console.error('Error in generate-slides API:', error);
