@@ -365,6 +365,32 @@ export default function Home() {
     });
   };
 
+  const handleDeleteSlide = (index: number) => {
+    if (slides.length <= 1) {
+      alert('Cannot delete the last slide');
+      return;
+    }
+    
+    setSlides(prev => {
+      const updated = prev.filter((_, i) => i !== index);
+      
+      // Adjust selected index
+      let newSelectedIndex = selectedSlideIndex;
+      if (index < selectedSlideIndex) {
+        newSelectedIndex = selectedSlideIndex - 1;
+      } else if (index === selectedSlideIndex) {
+        // If deleting the selected slide, select the previous one (or 0 if it's the first)
+        newSelectedIndex = Math.max(0, selectedSlideIndex - 1);
+      }
+      
+      setState(updated[newSelectedIndex]);
+      setSelectedSlideIndex(newSelectedIndex);
+      setIsUnsaved(true);
+      
+      return updated;
+    });
+  };
+
   const handleDeleteDeck = (deck: SavedDeck) => {
     deleteDeckFromStorage(deck.id);
     setSavedDecks(getAllDecksFromStorage());
@@ -1049,6 +1075,7 @@ export default function Home() {
                 onSlideClick={handleSlideClick}
                 onAddSlide={handleAddSlide}
                 onReorderSlides={handleReorderSlides}
+                onDeleteSlide={handleDeleteSlide}
                 showGrid={showGrid}
                 titleSlideTitle={slides[0]?.title || ''}
               />

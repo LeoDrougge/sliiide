@@ -631,11 +631,23 @@ video {
 .top-2 {
   top: 0.5rem;
 }
+.right-1 {
+  right: 0.25rem;
+}
+.top-1 {
+  top: 0.25rem;
+}
+.top-8 {
+  top: 2rem;
+}
 .z-10 {
   z-index: 10;
 }
 .z-50 {
   z-index: 50;
+}
+.z-20 {
+  z-index: 20;
 }
 .mb-1 {
   margin-bottom: 0.25rem;
@@ -681,6 +693,9 @@ video {
 }
 .h-\[calc\(100vh-120px\)\] {
   height: calc(100vh - 120px);
+}
+.h-full {
+  height: 100%;
 }
 .w-6 {
   width: 1.5rem;
@@ -825,6 +840,10 @@ video {
 .py-2 {
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+}
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
 }
 .text-left {
   text-align: left;

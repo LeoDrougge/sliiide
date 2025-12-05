@@ -1,3 +1,4 @@
 {
+  "/api/export-pdf/route": "app/api/export-pdf/route.js",
   "/page": "app/page.js"
 }

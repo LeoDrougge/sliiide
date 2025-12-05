@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useState } from 'react';
+import { memo, useState, useRef, useEffect } from 'react';
 import HtmlSlidePreview from './HtmlSlidePreview';
 import type { SlideState } from '../lib/types';
 
@@ -10,6 +10,7 @@ interface SlidePreviewListProps {
   onSlideClick: (index: number) => void;
   onAddSlide?: () => void;
   onReorderSlides?: (fromIndex: number, toIndex: number) => void;
+  onDeleteSlide?: (index: number) => void;
   showGrid?: boolean;
   titleSlideTitle?: string; // Title from slide 0 to use as overline
 }
@@ -24,7 +25,8 @@ function SlidePreviewItem({
   onDrop,
   isDragging,
   showGrid,
-  titleSlideTitle
+  titleSlideTitle,
+  onDelete
 }: { 
   slide: SlideState; 
   index: number; 
@@ -36,27 +38,101 @@ function SlidePreviewItem({
   isDragging: boolean;
   showGrid?: boolean;
   titleSlideTitle?: string;
+  onDelete?: (index: number) => void;
 }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const thumbnailScale = 200 / 1920;
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+
+    if (showMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [showMenu]);
+
+  const handleMenuClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowMenu(false);
+    if (onDelete) {
+      onDelete(index);
+    }
+  };
 
   return (
     <div
-      draggable
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      onClick={onClick}
-      className={`border-2 cursor-move mb-2 transition-all overflow-hidden ${
+      className={`border-2 mb-2 transition-all overflow-hidden relative group ${
         isSelected ? 'border-gray-400' : 'border-gray-200'
       } ${isDragging ? 'opacity-50' : ''}`}
       style={{ width: '200px', height: '112.5px', position: 'relative' }}
     >
-      <HtmlSlidePreview 
-        slide={slide} 
-        showGrid={showGrid} 
-        scale={thumbnailScale}
-        titleSlideTitle={titleSlideTitle}
-      />
+      <div
+        draggable
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDrop={onDrop}
+        onClick={onClick}
+        className="cursor-move h-full w-full"
+      >
+        <HtmlSlidePreview 
+          slide={slide} 
+          showGrid={showGrid} 
+          scale={thumbnailScale}
+          titleSlideTitle={titleSlideTitle}
+        />
+        {/* Dot menu icon - shows on hover */}
+        <div 
+          className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          onClick={handleMenuClick}
+          style={{ 
+            width: '28px', 
+            height: '28px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderRadius: '4px',
+            zIndex: 10,
+          }}
+        >
+          <img 
+            src="/images/icon-dotmenu.svg" 
+            alt="Menu" 
+            style={{ width: '16px', height: '16px' }}
+          />
+        </div>
+      </div>
+      
+      {/* Menu dropdown */}
+      {showMenu && (
+        <div
+          ref={menuRef}
+          className="absolute top-8 right-1 bg-white border border-gray-200 shadow-lg z-20"
+          style={{ minWidth: '100px' }}
+        >
+          <button
+            onClick={handleDelete}
+            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors"
+            type="button"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -69,6 +145,7 @@ export default function SlidePreviewList({
   onSlideClick,
   onAddSlide,
   onReorderSlides,
+  onDeleteSlide,
   showGrid = false,
   titleSlideTitle
 }: SlidePreviewListProps) {
@@ -125,6 +202,7 @@ export default function SlidePreviewList({
               isDragging={draggedIndex === index}
               showGrid={showGrid}
               titleSlideTitle={titleSlideTitle}
+              onDelete={onDeleteSlide}
             />
           </div>
         ))}
