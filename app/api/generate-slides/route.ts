@@ -161,10 +161,10 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
       };
     });
 
-    // If more than 5 slides, insert Table of Contents as slide 3 (index 2)
+    // If more than 5 slides, insert Table of Contents as slide 2 (index 1)
     if (validatedSlides.length > 5) {
       // Get titles from slides for TOC
-      // Skip title slide (index 0) and next slide (index 1), then include all others
+      // Skip title slide (index 0), then include all others
       const tocTitles = validatedSlides
         .slice(1) // Skip title slide
         .map(slide => slide.title)
@@ -179,8 +179,8 @@ Använd "title" som layout för alla slides. Returnera ENDAST JSON, ingen ytterl
         useBullets: true,
       };
 
-      // Insert TOC as slide 3 (index 2)
-      validatedSlides.splice(2, 0, tocSlide);
+      // Insert TOC as slide 2 (index 1)
+      validatedSlides.splice(1, 0, tocSlide);
     }
 
     return NextResponse.json({ slides: validatedSlides });
