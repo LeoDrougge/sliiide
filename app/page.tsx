@@ -304,6 +304,33 @@ export default function Home() {
     });
   };
 
+  const handleReorderSlides = (fromIndex: number, toIndex: number) => {
+    // Save current slide changes before reordering
+    setSlides(prev => {
+      const updated = [...prev];
+      updated[selectedSlideIndex] = state;
+      
+      // Reorder slides
+      const [movedSlide] = updated.splice(fromIndex, 1);
+      updated.splice(toIndex, 0, movedSlide);
+      
+      // Update selected index if needed
+      if (selectedSlideIndex === fromIndex) {
+        // Selected slide was moved
+        setSelectedSlideIndex(toIndex);
+      } else if (selectedSlideIndex > fromIndex && selectedSlideIndex <= toIndex) {
+        // Selected slide is after the moved slide, shift it left
+        setSelectedSlideIndex(selectedSlideIndex - 1);
+      } else if (selectedSlideIndex < fromIndex && selectedSlideIndex >= toIndex) {
+        // Selected slide is before the moved slide, shift it right
+        setSelectedSlideIndex(selectedSlideIndex + 1);
+      }
+      // If selected slide is outside the range, no change needed
+      
+      return updated;
+    });
+  };
+
   const handleDeleteDeck = (deckId: string) => {
     deleteDeckFromStorage(deckId);
     setSavedDecks(getAllDecksFromStorage());
@@ -387,12 +414,16 @@ export default function Home() {
 
   const handleExport = async () => {
     try {
+      // Save current slide changes before exporting
+      const currentSlides = [...slides];
+      currentSlides[selectedSlideIndex] = state;
+      
       // Call Puppeteer API to generate PDF
       const response = await fetch('/api/export-pdf', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          slides,
+          slides: currentSlides,
           showGrid,
         }),
       });
@@ -933,6 +964,7 @@ export default function Home() {
                 selectedIndex={selectedSlideIndex}
                 onSlideClick={handleSlideClick}
                 onAddSlide={handleAddSlide}
+                onReorderSlides={handleReorderSlides}
                 showGrid={showGrid}
               />
             ) : (

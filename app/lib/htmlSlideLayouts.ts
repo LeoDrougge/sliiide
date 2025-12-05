@@ -189,15 +189,16 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
   const bodyLineHeight = 27;
   const bodyParagraphs = state.bodyText.split('\n').filter(line => line.trim());
   const bodyLines = bodyParagraphs.map(p => wrapText(p, bodyMaxWidth, bodyFontSize, bodyLetterSpacing));
-  const bodyHeight = bodyLines.reduce((sum, lines) => sum + lines.length, 0) * bodyLineHeight;
 
-  const gapHeight = 80; // Gap between title and body
-  const totalHeight = titleHeight + gapHeight + bodyHeight;
-  const pageCenterY = 540; // Middle of 1080px page
+  const gapHeight = 80; // Gap between title and body (doubled from original 40px)
+  const pageCenterY = 540; // Middle of 1080px page (540px from top)
 
-  // Calculate vertical positions
-  const titleBottomY = pageCenterY + (totalHeight / 2) - titleHeight;
-  const bodyTopY = titleBottomY - gapHeight;
+  // Title: centered around midline, grows upward from its bottom
+  // Title bottom should be at midline (540px from top = 540px from bottom in 1080px container)
+  const titleBottomFromBottom = pageCenterY;
+
+  // Body: 80px below title bottom (midline), flows downward
+  const bodyTopFromTop = pageCenterY + gapHeight;
 
   return {
     header: {
@@ -207,7 +208,7 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
     },
     title: {
       position: 'absolute' as const,
-      top: `${titleBottomY - titleHeight}px`,
+      bottom: `${titleBottomFromBottom}px`, // Title bottom at midline (540px from bottom)
       left: '50%',
       transform: 'translateX(-50%)',
       maxWidth: `${titleMaxWidth}px`,
@@ -215,7 +216,7 @@ export function getCenteredLayoutStyles(state: SlideState): LayoutStyles {
     },
     body: {
       position: 'absolute' as const,
-      top: `${bodyTopY}px`,
+      top: `${bodyTopFromTop}px`, // Body starts 80px below midline (620px from top)
       left: '50%',
       transform: 'translateX(-50%)',
       maxWidth: `${bodyMaxWidth}px`,

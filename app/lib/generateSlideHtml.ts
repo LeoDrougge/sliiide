@@ -156,6 +156,16 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             color: #000;
         }
 
+        .slide-logo {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            height: 40px;
+            width: auto;
+            z-index: 3;
+            pointer-events: none;
+        }
+
         @page {
             size: 1920px 1080px;
             margin: 0;
@@ -167,6 +177,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
         <div class="slide-frame">
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
+                <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
                 <div class="slide-header" style="${headerStyle}">${escapeHtml(slide.header)}</div>
                 <div class="slide-title" style="${titleStyle}">
                     ${layoutStyles.titleLines 
@@ -205,6 +216,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
           <div class="slide-frame">
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
+              <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
               <div class="slide-header" style="${headerStyle}">${escapeHtml(slide.header)}</div>
               <div class="slide-title" style="${titleStyle}">
                 ${layoutStyles.titleLines 
@@ -356,6 +368,16 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             line-height: 27px;
             letter-spacing: -0.66px;
             color: #000;
+        }
+
+        .slide-logo {
+            position: absolute;
+            bottom: 40px;
+            right: 40px;
+            height: 40px;
+            width: auto;
+            z-index: 3;
+            pointer-events: none;
         }
 
         @page {

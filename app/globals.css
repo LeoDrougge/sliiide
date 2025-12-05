@@ -165,3 +165,14 @@ label {
   color: rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
+
+/* Antrop logo in bottom right corner */
+.slide-logo {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+  height: 40px;
+  width: auto;
+  z-index: 3;
+  pointer-events: none;
+}

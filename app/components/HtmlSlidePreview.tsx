@@ -69,6 +69,12 @@ export default function HtmlSlidePreview({
       <div ref={frameRef} className="slide-frame">
         <div className={`grid-overlay ${!showGrid ? 'hidden' : ''}`} />
         <div className="slide-content">
+          {/* Antrop logo in bottom right corner */}
+          <img 
+            src="/images/antrop_logo.svg" 
+            alt="Antrop" 
+            className="slide-logo"
+          />
           {editable ? (
             <>
               {/* Editable mode - show raw text, browser handles wrapping */}

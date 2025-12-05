@@ -67,6 +67,46 @@ export async function POST(request: NextRequest) {
       `url('${martianMono}')`
     );
 
+    // Load logo as base64 for embedding
+    const publicImagesPath = path.join(process.cwd(), 'public', 'images');
+    const loadLogoAsBase64 = (): string => {
+      try {
+        const logoPath = path.join(publicImagesPath, 'antrop_logo.svg');
+        console.log('Loading logo from:', logoPath);
+        if (!fs.existsSync(logoPath)) {
+          console.error('Logo file does not exist:', logoPath);
+          return '';
+        }
+        const logoContent = fs.readFileSync(logoPath, 'utf-8');
+        // For SVG, we can use base64 encoding
+        const logoBase64 = Buffer.from(logoContent, 'utf-8').toString('base64');
+        const dataUrl = `data:image/svg+xml;base64,${logoBase64}`;
+        console.log('Logo loaded successfully, data URL length:', dataUrl.length);
+        return dataUrl;
+      } catch (error) {
+        console.error('Error loading logo:', error);
+        return '';
+      }
+    };
+
+    const logoDataUrl = loadLogoAsBase64();
+    
+    // Replace logo URL in HTML with base64 data URL
+    // Need to escape quotes properly in the replacement
+    if (logoDataUrl) {
+      const beforeReplace = html.includes('/images/antrop_logo.svg');
+      // Escape quotes in data URL for HTML attribute
+      const escapedDataUrl = logoDataUrl.replace(/"/g, '&quot;');
+      html = html.replace(
+        /src="\/images\/antrop_logo\.svg"/g,
+        `src="${escapedDataUrl}"`
+      );
+      const afterReplace = html.includes('data:image/svg+xml');
+      console.log(`Logo replacement: ${beforeReplace ? 'found' : 'not found'} before, ${afterReplace ? 'replaced' : 'not replaced'} after`);
+    } else {
+      console.warn('Logo data URL is empty, logo will not be included in PDF');
+    }
+
     // Launch Puppeteer - same config as working experiment
     // Use dynamic import to avoid SSR issues
     console.log('Loading Puppeteer...');
@@ -88,10 +128,13 @@ export async function POST(request: NextRequest) {
         deviceScaleFactor: 1,
       });
 
-      // Load HTML - same approach as experiment
+      // Load HTML - use 'load' instead of 'networkidle0' to avoid timeout with base64 images
       await page.setContent(html, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'load',
       });
+      
+      // Wait a bit for images to load if needed
+      await new Promise(resolve => setTimeout(resolve, 500));
 
       // Emulate print media for CSS print styles
       await page.emulateMediaType('print');
