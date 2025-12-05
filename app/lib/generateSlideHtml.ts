@@ -268,7 +268,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
                   ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
                   : escapeHtml(slide.title)}
               </div>
-              ${layoutStyles.bodyUseBullets
+              ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
                 ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                     ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
                       `<li>${escapeHtml(line)}</li>`
