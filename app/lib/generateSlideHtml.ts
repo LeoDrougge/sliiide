@@ -16,9 +16,24 @@ function styleToString(styles: Record<string, string | number | undefined>): str
     .filter(([, value]) => value !== undefined)
     .map(([key, value]) => {
       const cssKey = key.replace(/([A-Z])/g, '-$1').toLowerCase();
+      // Use !important for color to ensure it overrides CSS classes in PDF
+      if (cssKey === 'color') {
+        return `${cssKey}: ${value} !important;`;
+      }
       return `${cssKey}: ${value};`;
     })
     .join(' ');
+}
+
+// Helper to add text color to a style string
+function addTextColor(styleString: string, textColor?: string): string {
+  if (!textColor) return styleString;
+  // Ensure proper formatting: if styleString exists and doesn't end with semicolon, add space
+  // Otherwise just add color
+  if (styleString && !styleString.trim().endsWith(';')) {
+    return `${styleString} color: ${textColor};`;
+  }
+  return `${styleString}${styleString.trim() ? ' ' : ''}color: ${textColor};`;
 }
 
 export function generateSlideHtml(slide: SlideState, showGrid: boolean = false): string {
@@ -33,7 +48,12 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
     ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
   };
   const titleStyle = styleToString(titleStyleObj);
-  const bodyStyle = styleToString(layoutStyles.body);
+  // Include textColor in body style directly to match preview behavior
+  const bodyStyleObj = {
+    ...layoutStyles.body,
+    ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+  };
+  const bodyStyle = styleToString(bodyStyleObj);
 
   const gridClass = showGrid ? '' : 'hidden';
 
@@ -143,7 +163,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
         .slide-overline {
             font-family: 'Martian Mono', monospace;
             font-size: 16px;
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-title {
@@ -152,7 +172,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             font-size: 125px;
             line-height: 125px;
             letter-spacing: -5px;
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-body {
@@ -160,7 +180,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             font-size: 22px;
             line-height: 27px;
             letter-spacing: -0.66px;
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-body-large {
@@ -169,7 +189,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             font-size: 30px;
             line-height: 42px;
             letter-spacing: -0.6px; /* -2% of 30px */
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-intro-text {
@@ -178,7 +198,7 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
             font-size: 52px;
             line-height: 64px;
             letter-spacing: -1.56px; /* -3% of 52px */
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         /* Bullet list styles */
@@ -228,25 +248,25 @@ export function generateSlideHtml(slide: SlideState, showGrid: boolean = false):
 </head>
 <body>
     <div class="slide-wrapper">
-        <div class="slide-frame">
+        <div class="slide-frame" style="background: ${layoutStyles.backgroundColor || 'white'};">
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
                 <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
-                <div class="slide-overline" style="${overlineStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">${escapeHtml(slide.overline)}</div>
+                <div class="slide-overline" style="${addTextColor(overlineStyle, layoutStyles.textColor)}">${escapeHtml(slide.overline)}</div>
                 ${layoutStyles.title.display !== 'none' ? `
-                <div class="slide-title" style="${titleStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
+                <div class="slide-title" style="${addTextColor(titleStyle, layoutStyles.textColor)}">
                     ${layoutStyles.titleLines 
                       ? layoutStyles.titleLines.map(line => `<div style="line-height: ${layoutStyles.titleLineHeight || 125}px;">${escapeHtml(line)}</div>`).join('')
                       : escapeHtml(slide.title)}
                 </div>
                 ` : ''}
                 ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
-                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
+                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                       ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
                         `<li>${escapeHtml(line)}</li>`
                       ).join('')}
                     </ul>`
-                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
+                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                       ${layoutStyles.bodyLines
                         ? layoutStyles.bodyLines.map(paragraph => 
                             `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
@@ -276,7 +296,12 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
       ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
     };
     const titleStyle = styleToString(titleStyleObj);
-    const bodyStyle = styleToString(layoutStyles.body);
+    // Include textColor in body style directly to match preview behavior
+    const bodyStyleObj = {
+      ...layoutStyles.body,
+      ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+    };
+    const bodyStyle = styleToString(bodyStyleObj);
 
     const gridClass = showGrid ? '' : 'hidden';
 
@@ -287,19 +312,19 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             <div class="grid-overlay ${gridClass}"></div>
             <div class="slide-content">
               <img src="/images/antrop_logo.svg" alt="Antrop" class="slide-logo" />
-              <div class="slide-overline" style="${overlineStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">${escapeHtml(slide.overline)}</div>
-              <div class="slide-title" style="${titleStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
+              <div class="slide-overline" style="${addTextColor(overlineStyle, layoutStyles.textColor)}">${escapeHtml(slide.overline)}</div>
+              <div class="slide-title" style="${addTextColor(titleStyle, layoutStyles.textColor)}">
                 ${layoutStyles.titleLines 
                   ? layoutStyles.titleLines.map(line => `<div style="line-height: 125px;">${escapeHtml(line)}</div>`).join('')
                   : escapeHtml(slide.title)}
               </div>
-              ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
-                ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
-                    ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
-                      `<li>${escapeHtml(line)}</li>`
-                    ).join('')}
-                  </ul>`
-                : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}${layoutStyles.textColor ? `; color: ${layoutStyles.textColor}` : ''}">
+                ${(slide.useBullets !== false && (slide.useBullets === true || layoutStyles.bodyUseBullets))
+                  ? `<ul class="slide-bullet-list ${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
+                      ${slide.bodyText.split('\n').filter(line => line.trim()).map(line => 
+                        `<li>${escapeHtml(line)}</li>`
+                      ).join('')}
+                    </ul>`
+                  : `<div class="${layoutStyles.bodyClassName || 'slide-body'}" style="${bodyStyle}">
                     ${layoutStyles.bodyLines
                       ? layoutStyles.bodyLines.map(paragraph => 
                           `<div>${paragraph.map(line => `<div style="line-height: ${layoutStyles.bodyLineHeight || 27}px;">${escapeHtml(line)}</div>`).join('')}</div>`
@@ -427,7 +452,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
         .slide-overline {
             font-family: 'Martian Mono', monospace;
             font-size: 16px;
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-title {
@@ -436,7 +461,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             font-size: 125px;
             line-height: 125px;
             letter-spacing: -5px;
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-body {
@@ -444,7 +469,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             font-size: 22px;
             line-height: 27px;
             letter-spacing: -0.66px;
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-body-large {
@@ -453,7 +478,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             font-size: 30px;
             line-height: 42px;
             letter-spacing: -0.6px; /* -2% of 30px */
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         .slide-intro-text {
@@ -462,7 +487,7 @@ export function generateMultiSlideHtml(slides: SlideState[], showGrid: boolean =
             font-size: 52px;
             line-height: 64px;
             letter-spacing: -1.56px; /* -3% of 52px */
-            color: #000;
+            /* Color is set via inline styles from layoutStyles.textColor */
         }
 
         /* Bullet list styles */

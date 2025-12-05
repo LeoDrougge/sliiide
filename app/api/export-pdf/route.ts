@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
       bodyText: slide.bodyText || '',
       layout: slide.layout || 'title',
       useBullets: slide.useBullets ?? false,
+      colorTheme: slide.colorTheme ?? 0, // Include colorTheme
     }));
 
     // Generate HTML for all slides

@@ -129,6 +129,7 @@ export default function HtmlSlidePreview({
                     ...(layoutStyles.titleFontSize && { fontSize: `${layoutStyles.titleFontSize}px` }),
                     ...(layoutStyles.titleLineHeight && { lineHeight: `${layoutStyles.titleLineHeight}px` }),
                     ...(layoutStyles.titleLetterSpacing && { letterSpacing: `${layoutStyles.titleLetterSpacing}px` }),
+                    ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
                   }}
                   contentEditable
                   suppressContentEditableWarning
@@ -246,7 +247,13 @@ export default function HtmlSlidePreview({
                   )}
                 </div>
               )}
-              <div className={layoutStyles.bodyClassName || 'slide-body'} style={layoutStyles.body}>
+              <div 
+                className={layoutStyles.bodyClassName || 'slide-body'} 
+                style={{
+                  ...layoutStyles.body,
+                  ...(layoutStyles.textColor && { color: layoutStyles.textColor }),
+                }}
+              >
                 {layoutStyles.bodyUseBullets && layoutStyles.bodyLines ? (
                   // Render with custom bullet points
                   layoutStyles.bodyLines.map((paragraph, pIdx) => {
